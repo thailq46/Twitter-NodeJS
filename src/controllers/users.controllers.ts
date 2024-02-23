@@ -15,7 +15,6 @@ export const loginController = (req: Request, res: Response) => {
     message: 'Email or password is incorrect'
   })
 }
-
 export const registerController = async (req: Request, res: Response) => {
   const { email, password } = req.body
   try {
