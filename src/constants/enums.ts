@@ -3,3 +3,10 @@ export enum UserVerifyStatus {
   Verified, // đã xác thực emails
   Banned // bị khoá
 }
+
+export enum TokenType {
+  AccessToken,
+  RefreshToken,
+  ForgotPasswordToken,
+  EmailVerifyToken
+}
