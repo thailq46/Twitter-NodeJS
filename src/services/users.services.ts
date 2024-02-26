@@ -52,7 +52,7 @@ class UsersService {
   async checkUserExists(email: string) {
     try {
       const user = await databaseService.users.findOne({ email })
-      console.log('checkUserExists', user)
+      // console.log('checkUserExists', user)
       return Boolean(user)
     } catch (error) {
       console.log('Failed to check user exists', error)
