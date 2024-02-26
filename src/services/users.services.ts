@@ -24,28 +24,24 @@ class UsersService {
       options: { expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN }
     })
   }
+  private signAccessTokenAndRefreshToken(user_id: string) {
+    return Promise.all([this.signAccessToken(user_id), this.signRefreshToken(user_id)])
+  }
   async register(payload: RegisterReqBody) {
-    try {
-      // Khi tạo object User, khi truyền thừa dữ liệu vào new User thì constructor chỉ lấy dữ liêu cần thiết và bỏ qua dữ liệu thừa (Công dụng của class)
-      const result = await databaseService.users.insertOne(
-        new User({
-          ...payload,
-          date_of_birth: new Date(payload.date_of_birth),
-          password: hashPassword(payload.password)
-        })
-      )
-      const user_id = result.insertedId.toString()
-      const [access_token, refresh_token] = await Promise.all([
-        this.signAccessToken(user_id),
-        this.signRefreshToken(user_id)
-      ])
-      // await databaseService.closeConnection()
-      return {
-        access_token,
-        refresh_token
-      }
-    } catch (error) {
-      console.log('Failed to register', error)
+    // Khi tạo object User, khi truyền thừa dữ liệu vào new User thì constructor chỉ lấy dữ liêu cần thiết và bỏ qua dữ liệu thừa (Công dụng của class)
+    const result = await databaseService.users.insertOne(
+      new User({
+        ...payload,
+        date_of_birth: new Date(payload.date_of_birth),
+        password: hashPassword(payload.password)
+      })
+    )
+    const user_id = result.insertedId.toString()
+    const [access_token, refresh_token] = await this.signAccessTokenAndRefreshToken(user_id)
+    // await databaseService.closeConnection()
+    return {
+      access_token,
+      refresh_token
     }
   }
 
@@ -56,6 +52,13 @@ class UsersService {
       return Boolean(user)
     } catch (error) {
       console.log('Failed to check user exists', error)
+    }
+  }
+  async login(user_id: string) {
+    const [access_token, refresh_token] = await this.signAccessTokenAndRefreshToken(user_id)
+    return {
+      access_token,
+      refresh_token
     }
   }
 }
