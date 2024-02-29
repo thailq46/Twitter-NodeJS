@@ -1,10 +1,13 @@
+import { config } from 'dotenv'
 import User from '~/models/schemas/User.schema'
 import databaseService from './database.services'
 import { RegisterReqBody } from '~/models/request/User.requests'
 import { hashPassword } from '~/utils/crypto'
 import { signToken } from '~/utils/jwt'
 import { TokenType } from '~/constants/enums'
-
+import RefreshToken from '~/models/schemas/RefreshToken.schema'
+import { ObjectId } from 'mongodb'
+config()
 class UsersService {
   private async signAccessToken(user_id: string) {
     return await signToken({
@@ -39,6 +42,12 @@ class UsersService {
     const user_id = result.insertedId.toString()
     const [access_token, refresh_token] = await this.signAccessTokenAndRefreshToken(user_id)
     // await databaseService.closeConnection()
+
+    // Sau khi register new user thì insert refresh token của user vừa tạo vào database
+    await databaseService.refreshTokens.insertOne(
+      new RefreshToken({ user_id: new ObjectId(user_id), token: refresh_token })
+    )
+
     return {
       access_token,
       refresh_token
@@ -56,6 +65,11 @@ class UsersService {
   }
   async login(user_id: string) {
     const [access_token, refresh_token] = await this.signAccessTokenAndRefreshToken(user_id)
+
+    await databaseService.refreshTokens.insertOne(
+      new RefreshToken({ user_id: new ObjectId(user_id), token: refresh_token })
+    )
+
     return {
       access_token,
       refresh_token
