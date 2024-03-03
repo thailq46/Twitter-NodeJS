@@ -1,12 +1,21 @@
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ObjectId } from 'mongodb'
+import { UserVerifyStatus } from '~/constants/enums'
+import HTTP_STATUS from '~/constants/httpStatus'
 import { USERS_MESSAGE } from '~/constants/messages'
-import { LogoutReqBody, RegisterReqBody } from '~/models/request/User.requests'
+import {
+  LoginReqBody,
+  LogoutReqBody,
+  RegisterReqBody,
+  TokenPayload,
+  VerifyEmailReqBody
+} from '~/models/request/User.requests'
 import User from '~/models/schemas/User.schema'
+import databaseService from '~/services/database.services'
 import usersService from '~/services/users.services'
 
-export const loginController = async (req: Request, res: Response) => {
+export const loginController = async (req: Request<ParamsDictionary, any, LoginReqBody>, res: Response) => {
   const { user } = req as { user: User }
   const user_id = user._id as ObjectId
   const result = await usersService.login(user_id.toString())
@@ -30,4 +39,54 @@ export const logoutController = async (req: Request<ParamsDictionary, any, Logou
   return res.json({
     result
   })
+}
+
+export const emailVerifyController = async (
+  req: Request<ParamsDictionary, any, VerifyEmailReqBody>,
+  res: Response,
+  next: NextFunction
+) => {
+  const { user_id } = req.decoded_email_verify_token as TokenPayload
+  const user = await databaseService.users.findOne({
+    _id: new ObjectId(user_id)
+  })
+  // Nếu không tìm thấy user thì throw error
+  if (!user) {
+    return res.status(HTTP_STATUS.NOT_FOUND).json({
+      message: USERS_MESSAGE.USER_NOT_FOUND
+    })
+  }
+  // Đã verify email rồi thì không thông báo lỗi
+  // Mà mình sẽ trả về status OK với message là đã verify email trước đó rồi
+  if (user.email_verify_token === '') {
+    return res.json({
+      message: USERS_MESSAGE.EMAIL_ALREADY_VERIFIED_BEFORE
+    })
+  }
+
+  const result = await usersService.verifyEmail(user_id)
+  return res.json({
+    message: USERS_MESSAGE.EMAIL_VERIFY_SUCCESS,
+    result
+  })
+}
+
+export const resendVerifyEmailController = async (req: Request, res: Response, next: NextFunction) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+  const user = await databaseService.users.findOne({
+    _id: new ObjectId(user_id)
+  })
+  // Nếu không tìm thấy user thì throw error
+  if (!user) {
+    return res.status(HTTP_STATUS.NOT_FOUND).json({
+      message: USERS_MESSAGE.USER_NOT_FOUND
+    })
+  }
+  if (user.verify === UserVerifyStatus.Verified) {
+    return res.json({
+      message: USERS_MESSAGE.EMAIL_ALREADY_VERIFIED_BEFORE
+    })
+  }
+  const result = await usersService.resendVerifyEmail(user_id)
+  return res.json(result)
 }
