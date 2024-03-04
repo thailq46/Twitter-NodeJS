@@ -215,7 +215,10 @@ export const refreshTokenValidator = validate(
                 })
               }
               const [decoded_refresh_token, refresh_token] = await Promise.all([
-                verifyToken({ token: value }),
+                verifyToken({
+                  token: value,
+                  serectOrPublicKey: process.env.JWT_SECRET_REFRESH_TOKEN as string
+                }),
                 databaseService.refreshTokens.findOne({
                   token: value
                 })
