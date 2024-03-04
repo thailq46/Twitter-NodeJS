@@ -16,6 +16,7 @@ class UsersService {
         user_id,
         token_type: TokenType.AccessToken
       },
+      privateKey: process.env.JWT_SECRET_ACCESS_TOKEN as string,
       options: { expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN }
     })
   }

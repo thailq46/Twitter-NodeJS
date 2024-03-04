@@ -181,7 +181,10 @@ export const accessTokenValidator = validate(
               })
             }
             try {
-              const decoded_authorization = await verifyToken({ token: access_token })
+              const decoded_authorization = await verifyToken({
+                token: access_token,
+                serectOrPublicKey: process.env.JWT_SECRET_ACCESS_TOKEN as string
+              })
               ;(req as Request).decoded_authorization = decoded_authorization
               return true
             } catch (error) {
