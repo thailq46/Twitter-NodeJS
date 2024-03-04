@@ -201,6 +201,12 @@ export const refreshTokenValidator = validate(
         custom: {
           options: async (value: string, { req }) => {
             try {
+              if (!value) {
+                throw new ErrorWithStatus({
+                  message: USERS_MESSAGE.REFRESH_TOKEN_IS_REQUIRED,
+                  status: HTTP_STATUS.UNAUTHORIZED
+                })
+              }
               const [decoded_refresh_token, refresh_token] = await Promise.all([
                 verifyToken({ token: value }),
                 databaseService.refreshTokens.findOne({
@@ -283,6 +289,45 @@ export const forgotPasswordValidator = validate(
             }
             req.user = user
             return true
+          }
+        }
+      }
+    },
+    ['body']
+  )
+)
+
+export const verifyForgotPasswordTokenValidator = validate(
+  checkSchema(
+    {
+      forgot_password_token: {
+        trim: true,
+        custom: {
+          options: async (value: string, { req }) => {
+            try {
+              const [decoded_refresh_token, refresh_token] = await Promise.all([
+                verifyToken({ token: value }),
+                databaseService.refreshTokens.findOne({
+                  token: value
+                })
+              ])
+              if (!refresh_token) {
+                throw new ErrorWithStatus({
+                  message: USERS_MESSAGE.USED_REFRESH_TOKEN_OR_NOT_EXISTS,
+                  status: HTTP_STATUS.UNAUTHORIZED
+                })
+              }
+              ;(req as Request).decoded_refresh_token = decoded_refresh_token
+              return true
+            } catch (error) {
+              if (error instanceof JsonWebTokenError) {
+                throw new ErrorWithStatus({
+                  message: capitalize(error.message),
+                  status: HTTP_STATUS.UNAUTHORIZED
+                })
+              }
+              throw error
+            }
           }
         }
       }
