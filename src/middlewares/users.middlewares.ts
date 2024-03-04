@@ -10,6 +10,7 @@ import { hashPassword } from '~/utils/crypto'
 import { verifyToken } from '~/utils/jwt'
 import { validate } from '~/utils/validation'
 import { capitalize } from 'lodash'
+import { ObjectId } from 'mongodb'
 
 export const loginValidator = validate(
   checkSchema(
@@ -310,21 +311,31 @@ export const verifyForgotPasswordTokenValidator = validate(
         trim: true,
         custom: {
           options: async (value: string, { req }) => {
+            if (!value) {
+              throw new ErrorWithStatus({
+                message: USERS_MESSAGE.FORGOT_PASSWORD_TOKEN_IS_REQUIRED,
+                status: HTTP_STATUS.UNAUTHORIZED
+              })
+            }
             try {
-              const [decoded_refresh_token, refresh_token] = await Promise.all([
-                verifyToken({ token: value }),
-                databaseService.refreshTokens.findOne({
-                  token: value
-                })
-              ])
-              if (!refresh_token) {
+              const decoded_forgot_password_token = await verifyToken({
+                token: value,
+                serectOrPublicKey: process.env.JWT_SECRET_FORGOT_PASSWORD_TOKEN as string
+              })
+              const { user_id } = decoded_forgot_password_token
+              const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) })
+              if (!user) {
                 throw new ErrorWithStatus({
-                  message: USERS_MESSAGE.USED_REFRESH_TOKEN_OR_NOT_EXISTS,
+                  message: USERS_MESSAGE.USER_NOT_FOUND,
                   status: HTTP_STATUS.UNAUTHORIZED
                 })
               }
-              ;(req as Request).decoded_refresh_token = decoded_refresh_token
-              return true
+              if (user.forgot_password_token !== value) {
+                throw new ErrorWithStatus({
+                  message: USERS_MESSAGE.INVALID_FORGOT_PASSWORD_TOKEN,
+                  status: HTTP_STATUS.UNAUTHORIZED
+                })
+              }
             } catch (error) {
               if (error instanceof JsonWebTokenError) {
                 throw new ErrorWithStatus({
@@ -334,6 +345,7 @@ export const verifyForgotPasswordTokenValidator = validate(
               }
               throw error
             }
+            return true
           }
         }
       }
