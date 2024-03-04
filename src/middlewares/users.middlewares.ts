@@ -359,3 +359,88 @@ export const verifyForgotPasswordTokenValidator = validate(
     ['body']
   )
 )
+
+export const resetPasswordValidator = validate(
+  checkSchema(
+    {
+      password: {
+        notEmpty: {
+          errorMessage: USERS_MESSAGE.PASSWORD_IS_REQUIRED
+        },
+        isString: {
+          errorMessage: USERS_MESSAGE.PASSWORD_MUST_BE_A_STRING
+        },
+        isLength: {
+          options: { min: 6, max: 50 },
+          errorMessage: USERS_MESSAGE.PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50
+        },
+        isStrongPassword: {
+          options: {
+            minLength: 6,
+            minLowercase: 1,
+            minUppercase: 1,
+            minNumbers: 1,
+            minSymbols: 1
+          },
+          errorMessage: USERS_MESSAGE.PASSWORD_MUST_BE_STRONG
+        }
+      },
+      confirm_password: {
+        notEmpty: {
+          errorMessage: USERS_MESSAGE.CONFIRM_PASSWORD_IS_REQUIRED
+        },
+        isString: {
+          errorMessage: USERS_MESSAGE.CONFIRM_PASSWORD_MUST_BE_A_STRING
+        },
+        isLength: {
+          options: { min: 6, max: 50 },
+          errorMessage: USERS_MESSAGE.CONFIRM_PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50
+        },
+        isStrongPassword: {
+          options: {
+            minLength: 6,
+            minLowercase: 1,
+            minUppercase: 1,
+            minNumbers: 1,
+            minSymbols: 1
+          },
+          errorMessage: USERS_MESSAGE.CONFIRM_PASSWORD_MUST_BE_STRONG
+        },
+        custom: {
+          options: (value, { req }) => {
+            if (value !== req.body.password) {
+              throw new Error(USERS_MESSAGE.PASSWORD_AND_CONFIRM_PASSWORD_DO_NOT_MATCH)
+            }
+            return true
+          }
+        }
+      },
+      forgot_password_token: {
+        custom: {
+          options: async (value: string, { req }) => {
+            if (!value) {
+              throw new ErrorWithStatus({
+                message: USERS_MESSAGE.FORGOT_PASSWORD_TOKEN_IS_REQUIRED,
+                status: HTTP_STATUS.UNAUTHORIZED
+              })
+            }
+            try {
+              const decoded_forgot_password_token = await verifyToken({
+                token: value,
+                serectOrPublicKey: process.env.JWT_SECRET_FORGOT_PASSWORD_TOKEN as string
+              })
+              ;(req as Request).decoded_forgot_password_token = decoded_forgot_password_token
+            } catch (error) {
+              throw new ErrorWithStatus({
+                message: capitalize((error as JsonWebTokenError).message),
+                status: HTTP_STATUS.UNAUTHORIZED
+              })
+            }
+            return true
+          }
+        }
+      }
+    },
+    ['body']
+  )
+)
