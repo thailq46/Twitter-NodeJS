@@ -166,6 +166,12 @@ export const accessTokenValidator = validate(
         },
         custom: {
           options: async (value: string, { req }) => {
+            if (!value) {
+              throw new ErrorWithStatus({
+                message: USERS_MESSAGE.REFRESH_TOKEN_IS_REQUIRED,
+                status: HTTP_STATUS.UNAUTHORIZED
+              })
+            }
             const access_token = value.split(' ')[1]
             if (!access_token) {
               throw new ErrorWithStatus({
