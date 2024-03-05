@@ -17,6 +17,7 @@
 
 - Dùng để hiển thị các commit gần đây nhất
 - git log --oneline : hiển thị dạng rút gọn
+- Dùng q để thoát khi vào giao diện git log
 
 ## Git remote
 
