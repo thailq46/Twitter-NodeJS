@@ -9,7 +9,9 @@ import {
   verifyForgotPasswordController,
   getMeController,
   resetPasswordController,
-  updateMeController
+  updateMeController,
+  getProfileController,
+  followController
 } from '~/controllers/users.controllers'
 import { filterMiddleware } from '~/middlewares/common.middlewares'
 import {
@@ -22,7 +24,8 @@ import {
   verifyForgotPasswordTokenValidator,
   resetPasswordValidator,
   verifiedUserValidator,
-  updateMeValidator
+  updateMeValidator,
+  followValidator
 } from '~/middlewares/users.middlewares'
 import { UpdateMeReqBody } from '~/models/request/User.requests'
 import { wrapRequestHandler } from '~/utils/handlers'
@@ -129,6 +132,28 @@ usersRouter.patch(
     'date_of_birth'
   ]),
   wrapRequestHandler(updateMeController)
+)
+
+/**
+ * Desscription: Get user profile
+ * Path: /users/:username
+ * Method: GET
+ */
+usersRouter.get('/:username', wrapRequestHandler(getProfileController))
+
+/**
+ * Desscription: Follow someone
+ * Path: /users/follow
+ * Method: POST
+ * Headers: { Authorization: Bearer <access_token> }
+ * Body: { followed_user_id: string }
+ */
+usersRouter.post(
+  '/follow',
+  accessTokenValidator,
+  verifiedUserValidator,
+  followValidator,
+  wrapRequestHandler(followController)
 )
 
 export default usersRouter

@@ -52,3 +52,7 @@ export interface UpdateMeReqBody {
   username?: string
   cover_photo?: string
 }
+
+export interface FollowReqBody {
+  followed_user_id: string
+}
