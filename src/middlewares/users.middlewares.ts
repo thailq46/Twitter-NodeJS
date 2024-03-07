@@ -589,3 +589,34 @@ export const followValidator = validate(
     ['body']
   )
 )
+
+export const unfollowValidator = validate(
+  checkSchema(
+    {
+      user_id: {
+        custom: {
+          options: async (value: string, { req }) => {
+            if (!ObjectId.isValid(value)) {
+              throw new ErrorWithStatus({
+                message: USERS_MESSAGE.INVALID_USER_ID,
+                status: HTTP_STATUS.NOT_FOUND
+              })
+            }
+            const user = await databaseService.users.findOne({
+              _id: new ObjectId(value)
+            })
+            if (!user) {
+              throw new ErrorWithStatus({
+                message: USERS_MESSAGE.USER_NOT_FOUND,
+                status: HTTP_STATUS.NOT_FOUND
+              })
+            }
+            return true
+          }
+        },
+        trim: true
+      }
+    },
+    ['params']
+  )
+)

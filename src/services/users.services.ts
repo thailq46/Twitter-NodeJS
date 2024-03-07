@@ -296,6 +296,27 @@ class UsersService {
       message: USERS_MESSAGE.ALREADY_FOLLOWED
     }
   }
+  async unfollow(user_id: string, followed_user_id: string) {
+    // Tìm xem đã follow hay chưa nếu rồi thì throw error
+    const isFollowing = await databaseService.followers.findOne({
+      user_id: new ObjectId(user_id),
+      followed_user_id: new ObjectId(followed_user_id)
+    })
+    // Không tìm thấy document follower nghĩa là chưa follow
+    if (isFollowing === null) {
+      return {
+        message: USERS_MESSAGE.ALREADY_UNFOLLOWED
+      }
+    }
+    // Tìm thấy document follower nghĩa là đã follow
+    await databaseService.followers.deleteOne({
+      user_id: new ObjectId(user_id),
+      followed_user_id: new ObjectId(followed_user_id)
+    })
+    return {
+      message: USERS_MESSAGE.UNFOLLOW_SUCCESS
+    }
+  }
 }
 const usersService = new UsersService()
 export default usersService
