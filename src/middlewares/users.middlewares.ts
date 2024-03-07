@@ -13,6 +13,7 @@ import { capitalize } from 'lodash'
 import { ObjectId } from 'mongodb'
 import { TokenPayload } from '~/models/request/User.requests'
 import { UserVerifyStatus } from '~/constants/enums'
+import { REGEX_USERNAME } from '~/constants/regex'
 
 export const loginValidator = validate(
   checkSchema(
@@ -523,9 +524,20 @@ export const updateMeValidator = validate(
         isString: {
           errorMessage: USERS_MESSAGE.USERNAME_MUST_BE_A_STRING
         },
-        isLength: {
-          options: { min: 1, max: 50 },
-          errorMessage: USERS_MESSAGE.USERNAME_LENGTH
+        custom: {
+          options: async (value: string, { req }) => {
+            if (!REGEX_USERNAME.test(value)) {
+              throw Error(USERS_MESSAGE.USERNAME_INVALID)
+            }
+            const user = await databaseService.users.findOne({
+              username: value
+            })
+            // Nếu username đã tồn tại thì không cho phép update
+            if (user) {
+              throw new Error(USERS_MESSAGE.USERNAME_ALREADY_EXISTS)
+            }
+            return true
+          }
         },
         trim: true
       },

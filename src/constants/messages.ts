@@ -46,6 +46,9 @@ export const USERS_MESSAGE = {
   WEBSITE_LENGTH_MUST_BE_FROM_1_TO_200: 'Website length must be from 1 to 200',
   USERNAME_MUST_BE_A_STRING: 'Username must be a string',
   USERNAME_LENGTH: 'Username length must be from 1 to 50',
+  USERNAME_INVALID:
+    'Username must be 4-15 characters, and contain only letters, numbers, underscores, not only numbers',
+  USERNAME_ALREADY_EXISTS: 'Username already exists',
   IMAGE_URL_MUST_BE_A_STRING: 'Image must be a string',
   IMAGE_URL_LENGTH: 'Image length must be from 1 to 400',
   UPDATE_ME_SUCCESS: 'Update my profile success',
