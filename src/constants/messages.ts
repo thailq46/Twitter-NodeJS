@@ -60,5 +60,12 @@ export const USERS_MESSAGE = {
   ALREADY_FOLLOWED: 'Already followed',
   INVALID_USER_ID: 'Invalid user id',
   UNFOLLOW_SUCCESS: 'Unfollow success',
-  ALREADY_UNFOLLOWED: 'Already unfollowed'
+  ALREADY_UNFOLLOWED: 'Already unfollowed',
+  OLD_PASSWORD_IS_REQUIRED: 'Old password is required',
+  OLD_PASSWORD_MUST_BE_A_STRING: 'Old password must be a string',
+  OLD_PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50: 'Old password length must be from 6 to 50',
+  OLD_PASSWORD_MUST_BE_STRONG:
+    'Old password must be strong 6-50 characters, and contain at least 1 lowercase, 1 uppercase, 1 number, and 1 special character',
+  OLD_PASSWORD_INCORRECT: 'Old password is incorrect',
+  CHANGE_PASSWORD_SUCCESS: 'Change password success'
 } as const
