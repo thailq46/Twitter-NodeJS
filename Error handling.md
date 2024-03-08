@@ -47,6 +47,8 @@ app.post(
 Khi xảy ra lỗi trong synchronous handler thì tự động sẽ được chuyển sang error handler
 Khi xảy ra lỗi trong asynchronous handler thì phải gọi `next(err)` cho bằng được để chuyển sang error handler
 
+=> Khi 1 async fuction return về 1 promise reject() thì function async gọi function bị promise reject() đấy cũng sẽ bị reject
+
 ## Error handler
 
 Nhận error từ request handler và trả về response
