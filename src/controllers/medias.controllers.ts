@@ -9,7 +9,7 @@ export const uploadSingleImageController = async (req: Request, res: Response, n
    */
 
   const form = formidable({
-    uploadDir: path.resolve('uploads'),
+    uploadDir: path.resolve('uploads/images'),
     maxFiles: 1,
     keepExtensions: true,
     maxFileSize: 800 * 1024 // 800KB
