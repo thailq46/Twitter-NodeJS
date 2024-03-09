@@ -4,12 +4,12 @@ import { UPLOAD_DIR } from '~/constants/dir'
 import { USERS_MESSAGE } from '~/constants/messages'
 import mediasService from '~/services/medias.services'
 
-export const uploadSingleImageController = async (req: Request, res: Response, next: NextFunction) => {
+export const uploadImageController = async (req: Request, res: Response, next: NextFunction) => {
   /**
    * Cách fix 1 ESModule được sử dụng trong CommonJS (bản ta dùng là types@formidable v3 không phải v2 lên ko cần -> Nếu formidable là v3 và types@formidable là v2 thì cần sử dụng để không bị lỗi)
    * const formidable = (await import('formidable')).default
    */
-  const url = await mediasService.handleUploadSingleImage(req)
+  const url = await mediasService.uploadImage(req)
   return res.json({
     result: url,
     message: USERS_MESSAGE.UPLOAD_IMAGE_SUCCESS
