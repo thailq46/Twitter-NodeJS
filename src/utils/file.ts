@@ -2,26 +2,31 @@ import { NextFunction, Request } from 'express'
 import formidable, { File } from 'formidable'
 import fs from 'fs'
 import path from 'path'
-import { UPLOAD_TEMP_DIR } from '~/constants/dir'
+import { UPLOAD_IMAGE_TEMP_DIR, UPLOAD_VIDEO_DIR, UPLOAD_VIDEO_TEMP_DIR } from '~/constants/dir'
 
-const MAX_FILES = 4
-const MAX_FILE_SIZE = 3000 * 1024
-const MAX_TOTAL_FILE_SIZE = MAX_FILE_SIZE * MAX_FILES
+const MAX_FILES_IMAGE = 4
+const MAX_FILE_SIZE_IMAGE = 3000 * 1024
+const MAX_TOTAL_FILE_SIZE_IMAGE = MAX_FILE_SIZE_IMAGE * MAX_FILES_IMAGE
+
+const MAX_FILES_VIDEO = 1
+const MAX_FILE_SIZE_VIDEO = 50 * 1024 * 1024
 
 export const initFolder = () => {
-  if (!fs.existsSync(UPLOAD_TEMP_DIR)) {
-    fs.mkdirSync(UPLOAD_TEMP_DIR, {
-      recursive: true // mục đích là để tạo folder nested
-    })
-  }
+  ;[UPLOAD_IMAGE_TEMP_DIR, UPLOAD_VIDEO_TEMP_DIR].forEach((dir) => {
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, {
+        recursive: true // mục đích là để tạo folder nested
+      })
+    }
+  })
 }
 
 export const handleUploadImage = async (req: Request) => {
   const form = formidable({
-    uploadDir: UPLOAD_TEMP_DIR,
-    maxFiles: MAX_FILES,
-    maxFileSize: MAX_FILE_SIZE,
-    maxTotalFileSize: MAX_TOTAL_FILE_SIZE,
+    uploadDir: UPLOAD_IMAGE_TEMP_DIR,
+    maxFiles: MAX_FILES_IMAGE,
+    maxFileSize: MAX_FILE_SIZE_IMAGE,
+    maxTotalFileSize: MAX_TOTAL_FILE_SIZE_IMAGE,
     keepExtensions: true,
     filter: ({ name, originalFilename, mimetype }) => {
       const valid = name === 'image' && Boolean(mimetype?.includes('image/'))
@@ -50,4 +55,38 @@ export const handleUploadImage = async (req: Request) => {
 export const getNameFromFullname = (fullname: string) => {
   const ext = path.extname(fullname)
   return path.basename(fullname, ext)
+}
+
+export const handleUploadVideo = async (req: Request) => {
+  const form = formidable({
+    uploadDir: UPLOAD_VIDEO_DIR,
+    maxFiles: MAX_FILES_VIDEO,
+    maxFileSize: MAX_FILE_SIZE_VIDEO,
+    filter: ({ name, originalFilename, mimetype }) => {
+      return true
+    }
+  })
+  return new Promise<File[]>((resolve, reject) => {
+    form.parse(req, (err, fields, files) => {
+      if (err) {
+        return reject(err)
+      }
+      // eslint-disable-next-line no-extra-boolean-cast
+      if (!Boolean(files.video)) {
+        return reject(new Error('File is empty') as any)
+      }
+      const videos = files.video as File[]
+      videos.forEach((video) => {
+        const ext = getExtension(video.originalFilename as string)
+        fs.renameSync(video.filepath, video.filepath + '.' + ext)
+        video.newFilename = video.newFilename + '.' + ext
+      })
+      resolve(files.video as File[])
+    })
+  })
+}
+
+export const getExtension = (filename: string) => {
+  const namearr = filename.split('.')
+  return namearr[namearr.length - 1]
 }
