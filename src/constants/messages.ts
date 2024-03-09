@@ -68,5 +68,7 @@ export const USERS_MESSAGE = {
     'Old password must be strong 6-50 characters, and contain at least 1 lowercase, 1 uppercase, 1 number, and 1 special character',
   OLD_PASSWORD_INCORRECT: 'Old password is incorrect',
   CHANGE_PASSWORD_SUCCESS: 'Change password success',
-  GMAIL_NOT_VERIFIED: 'Gmail not verifed'
+  GMAIL_NOT_VERIFIED: 'Gmail not verifed',
+  UPLOAD_IMAGE_SUCCESS: 'Upload image success',
+  IMAGE_NOT_FOUND: 'Image not found'
 } as const

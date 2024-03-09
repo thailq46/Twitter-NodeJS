@@ -1,4 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
+import path from 'path'
+import { UPLOAD_DIR } from '~/constants/dir'
+import { USERS_MESSAGE } from '~/constants/messages'
 import mediasService from '~/services/medias.services'
 
 export const uploadSingleImageController = async (req: Request, res: Response, next: NextFunction) => {
@@ -6,8 +9,20 @@ export const uploadSingleImageController = async (req: Request, res: Response, n
    * Cách fix 1 ESModule được sử dụng trong CommonJS (bản ta dùng là types@formidable v3 không phải v2 lên ko cần -> Nếu formidable là v3 và types@formidable là v2 thì cần sử dụng để không bị lỗi)
    * const formidable = (await import('formidable')).default
    */
-  const data = await mediasService.handleUploadSingleImage(req)
-  return res.status(200).json({
-    result: data
+  const url = await mediasService.handleUploadSingleImage(req)
+  return res.json({
+    result: url,
+    message: USERS_MESSAGE.UPLOAD_IMAGE_SUCCESS
+  })
+}
+
+export const serveImageController = (req: Request, res: Response) => {
+  const { name } = req.params
+  return res.sendFile(path.resolve(UPLOAD_DIR, name), (err) => {
+    if (err) {
+      return res.status((err as any).status).json({
+        message: USERS_MESSAGE.IMAGE_NOT_FOUND
+      })
+    }
   })
 }
