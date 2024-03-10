@@ -1,8 +1,10 @@
 import { Request, Response, NextFunction } from 'express'
 import path from 'path'
 import { UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR } from '~/constants/dir'
+import HTTP_STATUS from '~/constants/httpStatus'
 import { USERS_MESSAGE } from '~/constants/messages'
 import mediasService from '~/services/medias.services'
+import fs from 'fs'
 
 export const uploadImageController = async (req: Request, res: Response, next: NextFunction) => {
   /**
@@ -27,15 +29,39 @@ export const serveImageController = (req: Request, res: Response) => {
   })
 }
 
-export const serveVideoController = (req: Request, res: Response) => {
+export const serveVideoStreamController = async (req: Request, res: Response) => {
+  const mime = (await import('mime')).default
+
+  const range = req.headers.range
+  if (!range) {
+    return res.status(HTTP_STATUS.BAD_REQUEST).send('Requires Range header')
+  }
   const { name } = req.params
-  return res.sendFile(path.resolve(UPLOAD_VIDEO_DIR, name), (err) => {
-    if (err) {
-      return res.status((err as any).status).json({
-        message: USERS_MESSAGE.VIDEO_NOT_FOUND
-      })
-    }
-  })
+  const videoPath = path.resolve(UPLOAD_VIDEO_DIR, name)
+  // 1MB = 10^6 bytes (Tính theo hệ 10, đây là thứ chúng ta hay thấy trên UI)
+  // Còn nếu tính theo hệ nhị phân thì 1MB = 2^20 bytes (1024 * 1024 bytes)
+
+  // Dung lượng video
+  const videoSize = fs.statSync(videoPath).size
+  // Dung lượng video cho mỗi phân đoạn stream
+  const CHUNK_SIZE = 10 ** 6 // 1MB
+  // Lấy giá trị byte bắt đầu từ header Range (vd: bytes=1048567-)
+  const start = Number(range.replace(/\D/g, ''))
+  // Lấy giá trị byte kết thúc, vượt quá dung lượng video thì lấy videoSize
+  const end = Math.min(start + CHUNK_SIZE, videoSize - 1)
+  // Dung lượng thực tế cho mỗi đoạn video stream
+  // Thường đây sẽ là chunk size, ngoại trừ đoạn cuối cùng
+  const contentLength = end - start + 1
+  const contentType = mime.getType(videoPath) || 'video/*'
+  const headers = {
+    'Content-Range': `bytes ${start}-${end - 1}/${videoSize}`,
+    'Accept-Ranges': 'bytes',
+    'Content-Length': contentLength,
+    'Content-Type': contentType
+  }
+  res.writeHead(HTTP_STATUS.PARTIAL_CONTENT, headers)
+  const videoSteams = fs.createReadStream(videoPath, { start, end })
+  videoSteams.pipe(res)
 }
 
 export const uploadVideoController = async (req: Request, res: Response, next: NextFunction) => {
