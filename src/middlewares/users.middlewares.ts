@@ -14,15 +14,20 @@ import { ObjectId } from 'mongodb'
 import { TokenPayload } from '~/models/request/User.requests'
 import { UserVerifyStatus } from '~/constants/enums'
 import { REGEX_USERNAME } from '~/constants/regex'
+import {
+  nameCheckSchema,
+  passwordCheckSchema,
+  confirmPasswordCheckSchema,
+  emailCheckSchema,
+  dateOfBirthCheckSchema,
+  oldPasswordCheckSchema
+} from '~/constants/checkSchema'
 
 export const loginValidator = validate(
   checkSchema(
     {
       email: {
-        isEmail: {
-          errorMessage: USERS_MESSAGE.EMAIL_INVALID
-        },
-        trim: true,
+        ...emailCheckSchema,
         custom: {
           options: async (value, { req }) => {
             const user = await databaseService.users.findOne({
@@ -37,28 +42,7 @@ export const loginValidator = validate(
           }
         }
       },
-      password: {
-        notEmpty: {
-          errorMessage: USERS_MESSAGE.PASSWORD_IS_REQUIRED
-        },
-        isString: {
-          errorMessage: USERS_MESSAGE.PASSWORD_MUST_BE_A_STRING
-        },
-        isLength: {
-          options: { min: 6, max: 50 },
-          errorMessage: USERS_MESSAGE.PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50
-        },
-        isStrongPassword: {
-          options: {
-            minLength: 6,
-            minLowercase: 1,
-            minUppercase: 1,
-            minNumbers: 1,
-            minSymbols: 1
-          },
-          errorMessage: USERS_MESSAGE.PASSWORD_MUST_BE_STRONG
-        }
-      }
+      password: passwordCheckSchema
     },
     ['body'] // Không truyền body thì mặc định checkSchema sẽ check full request ('body' | 'cookies' | 'headers' | 'params' | 'query') => giảm performance
   )
@@ -67,27 +51,9 @@ export const loginValidator = validate(
 export const registerValidator = validate(
   checkSchema(
     {
-      name: {
-        notEmpty: {
-          errorMessage: USERS_MESSAGE.NAME_IS_REQUIRED
-        },
-        isString: {
-          errorMessage: USERS_MESSAGE.NAME_MUST_BE_A_STRING
-        },
-        isLength: {
-          options: { min: 1, max: 100 },
-          errorMessage: USERS_MESSAGE.NAME_LENGTH_MUST_BE_FROM_1_TO_100
-        },
-        trim: true
-      },
+      name: nameCheckSchema,
       email: {
-        notEmpty: {
-          errorMessage: USERS_MESSAGE.EMAIL_IS_REQUIRED
-        },
-        isEmail: {
-          errorMessage: USERS_MESSAGE.EMAIL_INVALID
-        },
-        trim: true,
+        ...emailCheckSchema,
         custom: {
           options: async (value) => {
             const isExistEmail = await usersService.checkUserExists(value)
@@ -98,49 +64,9 @@ export const registerValidator = validate(
           }
         }
       },
-      password: {
-        notEmpty: {
-          errorMessage: USERS_MESSAGE.PASSWORD_IS_REQUIRED
-        },
-        isString: {
-          errorMessage: USERS_MESSAGE.PASSWORD_MUST_BE_A_STRING
-        },
-        isLength: {
-          options: { min: 6, max: 50 },
-          errorMessage: USERS_MESSAGE.PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50
-        },
-        isStrongPassword: {
-          options: {
-            minLength: 6,
-            minLowercase: 1,
-            minUppercase: 1,
-            minNumbers: 1,
-            minSymbols: 1
-          },
-          errorMessage: USERS_MESSAGE.PASSWORD_MUST_BE_STRONG
-        }
-      },
+      password: passwordCheckSchema,
       confirm_password: {
-        notEmpty: {
-          errorMessage: USERS_MESSAGE.CONFIRM_PASSWORD_IS_REQUIRED
-        },
-        isString: {
-          errorMessage: USERS_MESSAGE.CONFIRM_PASSWORD_MUST_BE_A_STRING
-        },
-        isLength: {
-          options: { min: 6, max: 50 },
-          errorMessage: USERS_MESSAGE.CONFIRM_PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50
-        },
-        isStrongPassword: {
-          options: {
-            minLength: 6,
-            minLowercase: 1,
-            minUppercase: 1,
-            minNumbers: 1,
-            minSymbols: 1
-          },
-          errorMessage: USERS_MESSAGE.CONFIRM_PASSWORD_MUST_BE_STRONG
-        },
+        ...confirmPasswordCheckSchema,
         custom: {
           options: (value, { req }) => {
             if (value !== req.body.password) {
@@ -150,12 +76,7 @@ export const registerValidator = validate(
           }
         }
       },
-      date_of_birth: {
-        isISO8601: {
-          options: { strict: true, strictSeparator: true },
-          errorMessage: USERS_MESSAGE.DATE_OF_BIRTH_MUST_BE_ISO8601
-        }
-      }
+      date_of_birth: dateOfBirthCheckSchema
     },
     ['body']
   )
@@ -288,13 +209,7 @@ export const forgotPasswordValidator = validate(
   checkSchema(
     {
       email: {
-        notEmpty: {
-          errorMessage: USERS_MESSAGE.EMAIL_IS_REQUIRED
-        },
-        isEmail: {
-          errorMessage: USERS_MESSAGE.EMAIL_INVALID
-        },
-        trim: true,
+        ...emailCheckSchema,
         custom: {
           options: async (value, { req }) => {
             const user = await databaseService.users.findOne({
@@ -366,49 +281,9 @@ export const verifyForgotPasswordTokenValidator = validate(
 export const resetPasswordValidator = validate(
   checkSchema(
     {
-      password: {
-        notEmpty: {
-          errorMessage: USERS_MESSAGE.PASSWORD_IS_REQUIRED
-        },
-        isString: {
-          errorMessage: USERS_MESSAGE.PASSWORD_MUST_BE_A_STRING
-        },
-        isLength: {
-          options: { min: 6, max: 50 },
-          errorMessage: USERS_MESSAGE.PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50
-        },
-        isStrongPassword: {
-          options: {
-            minLength: 6,
-            minLowercase: 1,
-            minUppercase: 1,
-            minNumbers: 1,
-            minSymbols: 1
-          },
-          errorMessage: USERS_MESSAGE.PASSWORD_MUST_BE_STRONG
-        }
-      },
+      password: passwordCheckSchema,
       confirm_password: {
-        notEmpty: {
-          errorMessage: USERS_MESSAGE.CONFIRM_PASSWORD_IS_REQUIRED
-        },
-        isString: {
-          errorMessage: USERS_MESSAGE.CONFIRM_PASSWORD_MUST_BE_A_STRING
-        },
-        isLength: {
-          options: { min: 6, max: 50 },
-          errorMessage: USERS_MESSAGE.CONFIRM_PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50
-        },
-        isStrongPassword: {
-          options: {
-            minLength: 6,
-            minLowercase: 1,
-            minUppercase: 1,
-            minNumbers: 1,
-            minSymbols: 1
-          },
-          errorMessage: USERS_MESSAGE.CONFIRM_PASSWORD_MUST_BE_STRONG
-        },
+        ...confirmPasswordCheckSchema,
         custom: {
           options: (value, { req }) => {
             if (value !== req.body.password) {
@@ -467,24 +342,11 @@ export const updateMeValidator = validate(
     {
       name: {
         optional: true,
-        notEmpty: {
-          errorMessage: USERS_MESSAGE.NAME_IS_REQUIRED
-        },
-        isString: {
-          errorMessage: USERS_MESSAGE.NAME_MUST_BE_A_STRING
-        },
-        isLength: {
-          options: { min: 1, max: 100 },
-          errorMessage: USERS_MESSAGE.NAME_LENGTH_MUST_BE_FROM_1_TO_100
-        },
-        trim: true
+        ...nameCheckSchema
       },
       date_of_birth: {
         optional: true,
-        isISO8601: {
-          options: { strict: true, strictSeparator: true },
-          errorMessage: USERS_MESSAGE.DATE_OF_BIRTH_MUST_BE_ISO8601
-        }
+        ...dateOfBirthCheckSchema
       },
       bio: {
         optional: true,
@@ -637,26 +499,7 @@ export const changePasswordValidator = validate(
   checkSchema(
     {
       old_password: {
-        notEmpty: {
-          errorMessage: USERS_MESSAGE.OLD_PASSWORD_IS_REQUIRED
-        },
-        isString: {
-          errorMessage: USERS_MESSAGE.OLD_PASSWORD_MUST_BE_A_STRING
-        },
-        isLength: {
-          options: { min: 6, max: 50 },
-          errorMessage: USERS_MESSAGE.OLD_PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50
-        },
-        isStrongPassword: {
-          options: {
-            minLength: 6,
-            minLowercase: 1,
-            minUppercase: 1,
-            minNumbers: 1,
-            minSymbols: 1
-          },
-          errorMessage: USERS_MESSAGE.OLD_PASSWORD_MUST_BE_STRONG
-        },
+        ...oldPasswordCheckSchema,
         custom: {
           options: async (value: string, { req }) => {
             const { user_id } = (req as Request).decoded_authorization as TokenPayload
@@ -680,49 +523,9 @@ export const changePasswordValidator = validate(
           }
         }
       },
-      new_password: {
-        notEmpty: {
-          errorMessage: USERS_MESSAGE.PASSWORD_IS_REQUIRED
-        },
-        isString: {
-          errorMessage: USERS_MESSAGE.PASSWORD_MUST_BE_A_STRING
-        },
-        isLength: {
-          options: { min: 6, max: 50 },
-          errorMessage: USERS_MESSAGE.PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50
-        },
-        isStrongPassword: {
-          options: {
-            minLength: 6,
-            minLowercase: 1,
-            minUppercase: 1,
-            minNumbers: 1,
-            minSymbols: 1
-          },
-          errorMessage: USERS_MESSAGE.PASSWORD_MUST_BE_STRONG
-        }
-      },
+      new_password: passwordCheckSchema,
       confirm_new_password: {
-        notEmpty: {
-          errorMessage: USERS_MESSAGE.CONFIRM_PASSWORD_IS_REQUIRED
-        },
-        isString: {
-          errorMessage: USERS_MESSAGE.CONFIRM_PASSWORD_MUST_BE_A_STRING
-        },
-        isLength: {
-          options: { min: 6, max: 50 },
-          errorMessage: USERS_MESSAGE.CONFIRM_PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50
-        },
-        isStrongPassword: {
-          options: {
-            minLength: 6,
-            minLowercase: 1,
-            minUppercase: 1,
-            minNumbers: 1,
-            minSymbols: 1
-          },
-          errorMessage: USERS_MESSAGE.CONFIRM_PASSWORD_MUST_BE_STRONG
-        },
+        ...confirmPasswordCheckSchema,
         custom: {
           options: (value: string, { req }) => {
             if (value !== req.body.new_password) {
