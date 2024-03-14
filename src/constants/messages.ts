@@ -73,5 +73,6 @@ export const USERS_MESSAGE = {
   UPLOAD_VIDEO_SUCCESS: 'Upload video success',
   IMAGE_NOT_FOUND: 'Image not found',
   VIDEO_NOT_FOUND: 'Video not found',
-  REFRESH_TOKEN_SUCCESS: 'Refresh token success'
+  REFRESH_TOKEN_SUCCESS: 'Refresh token success',
+  GET_VIDEO_STATUS_SUCCESS: 'Get video status success'
 } as const

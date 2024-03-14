@@ -6,11 +6,13 @@ import mediasRouter from './routes/medias.routes'
 import { initFolder } from './utils/file'
 import { config } from 'dotenv'
 import staticRouter from './routes/static.routes'
+import cors from 'cors'
 
 config()
 databaseService.connect()
 
 const app = express()
+app.use(cors())
 const port = process.env.PORT || 4000
 
 // Tạo folder uploads

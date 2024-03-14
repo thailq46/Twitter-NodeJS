@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express'
+import e, { Request, Response, NextFunction } from 'express'
 import path from 'path'
 import { UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR } from '~/constants/dir'
 import HTTP_STATUS from '~/constants/httpStatus'
@@ -69,5 +69,39 @@ export const uploadVideoController = async (req: Request, res: Response, next: N
   return res.json({
     result: url,
     message: USERS_MESSAGE.UPLOAD_VIDEO_SUCCESS
+  })
+}
+
+export const uploadVideoHLSController = async (req: Request, res: Response, next: NextFunction) => {
+  const url = await mediasService.uploadVideoHLS(req)
+  return res.json({
+    result: url,
+    message: USERS_MESSAGE.UPLOAD_VIDEO_SUCCESS
+  })
+}
+export const serveM3U8Controller = (req: Request, res: Response) => {
+  const { id } = req.params
+  return res.sendFile(path.resolve(UPLOAD_VIDEO_DIR, id, 'master.m3u8'), (err) => {
+    if (err) {
+      return res.status((err as any).status).send(USERS_MESSAGE.VIDEO_NOT_FOUND)
+    }
+  })
+}
+export const serveSegmentController = (req: Request, res: Response) => {
+  const { id, v, segment } = req.params
+  // segment: 0.ts, 1.ts, 2.ts, ...
+  return res.sendFile(path.resolve(UPLOAD_VIDEO_DIR, id, v, segment), (err) => {
+    if (err) {
+      return res.status((err as any).status).send(USERS_MESSAGE.VIDEO_NOT_FOUND)
+    }
+  })
+}
+
+export const videoStatusController = async (req: Request, res: Response) => {
+  const { id } = req.params
+  const result = await mediasService.getVideoStatus(id as string)
+  return res.json({
+    message: USERS_MESSAGE.GET_VIDEO_STATUS_SUCCESS,
+    result
   })
 }

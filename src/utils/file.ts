@@ -1,4 +1,4 @@
-import { NextFunction, Request } from 'express'
+import { Request } from 'express'
 import formidable, { File } from 'formidable'
 import fs from 'fs'
 import path from 'path'
@@ -21,6 +21,9 @@ export const initFolder = () => {
   })
 }
 
+// Tạo unique id cho video ngay từ đầu
+// Upload video: Upload video thành công thì resolve về cho người dùng
+// Encode video: Khai báo thêm 1 url endpoint để check xem video đó đã encode xong chưa
 export const handleUploadImage = async (req: Request) => {
   const form = formidable({
     uploadDir: UPLOAD_IMAGE_TEMP_DIR,
@@ -58,8 +61,12 @@ export const getNameFromFullname = (fullname: string) => {
 }
 
 export const handleUploadVideo = async (req: Request) => {
+  const nanoID = (await import('nanoid')).nanoid
+  const idName = nanoID()
+  const FOLDER_PATH = path.resolve(UPLOAD_VIDEO_DIR, idName)
+  fs.mkdirSync(FOLDER_PATH)
   const form = formidable({
-    uploadDir: UPLOAD_VIDEO_DIR,
+    uploadDir: FOLDER_PATH,
     maxFiles: MAX_FILES_VIDEO,
     maxFileSize: MAX_FILE_SIZE_VIDEO,
     filter: ({ name, originalFilename, mimetype }) => {
@@ -68,7 +75,8 @@ export const handleUploadVideo = async (req: Request) => {
         form.emit('error' as any, new Error('File type is not valid') as any)
       }
       return valid
-    }
+    },
+    filename: () => idName
   })
   return new Promise<File[]>((resolve, reject) => {
     form.parse(req, (err, fields, files) => {
@@ -84,6 +92,7 @@ export const handleUploadVideo = async (req: Request) => {
         const ext = getExtension(video.originalFilename as string)
         fs.renameSync(video.filepath, video.filepath + '.' + ext)
         video.newFilename = video.newFilename + '.' + ext
+        video.filepath = video.filepath + '.' + ext
       })
       resolve(files.video as File[])
     })
