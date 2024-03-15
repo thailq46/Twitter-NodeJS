@@ -174,6 +174,18 @@ enum TweetType {
 }
 ```
 
+### Validate Tweet Body
+
+Để validate pass 100% case của tweet thì rất tốn thời gian, sẽ validate những case chính. Tất nhiên nó sẽ dính 1 số case hiếm gặp -> nếu phát hiện thì sẽ tự bổ sung thêm
+
+- `type` phải là 1 trong 4 loại `TweetType`
+- `audience` phải là trong 2 loại `TweetAudience`
+- Nếu `type` là retweet, comment, quotetweet thì `parent_id` phải là `tweet_id` của tweet cha, nếu `type` là tweet thì `parent_id` phải là null
+- Nếu `type` là retweet thì `content` phải là `''`. Nếu `type` là comment, quotetweet, tweet và không có `mentions` và `hashtags` thì `content` phải là string và không được rỗng
+- `hashtag` phải là mảng các string
+- `mentions` phải là mảng các string dạng id
+- `medias` phải là mảng các `Media`
+
 ### Bookmarks
 
 Bookmarks các tweet lại, mỗi user không giới hạn số lượng bookmark. Sở dĩ không cần `updated_at` là vì trong trường hợp người dùng unbookmark thì chúng ta sẽ xoá document này đi
@@ -253,9 +265,5 @@ interface TweetRequestBody {
   hashtags: string[] // tên của hashtag dạng ['javascript','reactjs']
   mentions: string[] // string dạng user_id[]
   medias: Media[]
-  guest_views: number
-  user_views: number
-  created_at: Date
-  updated_at: Date
 }
 ```

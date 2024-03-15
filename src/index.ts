@@ -7,6 +7,7 @@ import { initFolder } from './utils/file'
 import { config } from 'dotenv'
 import staticRouter from './routes/static.routes'
 import cors from 'cors'
+import tweetsRouter from './routes/tweets.routes'
 
 config()
 databaseService.connect().then(() => {
@@ -30,6 +31,7 @@ app.use(express.urlencoded({ extended: true }))
 app.use('/users', usersRouter)
 app.use('/medias', mediasRouter)
 app.use('/static', staticRouter)
+app.use('/tweets', tweetsRouter)
 
 app.use(defaultErrorHandler)
 
