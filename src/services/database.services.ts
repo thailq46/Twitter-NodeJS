@@ -34,6 +34,9 @@ class DatabaseService {
     this.refreshTokens.createIndex({ token: 1 })
     this.refreshTokens.createIndex({ exp: 1 }, { expireAfterSeconds: 0 })
   }
+  indexVideoStatus() {
+    this.videoStatus.createIndex({ name: 1 })
+  }
 
   get users(): Collection<User> {
     return this.db.collection(process.env.DB_USERS_COLLECTION as string)
