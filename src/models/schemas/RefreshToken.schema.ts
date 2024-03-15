@@ -5,6 +5,8 @@ interface RefreshTokenType {
   user_id: ObjectId
   token: string
   created_at?: Date
+  iat: number
+  exp: number
 }
 
 export default class RefreshToken {
@@ -12,12 +14,15 @@ export default class RefreshToken {
   token: string
   created_at: Date
   user_id: ObjectId
-
-  constructor(refreshToken: RefreshTokenType) {
+  iat: Date
+  exp: Date
+  constructor({ _id, user_id, token, created_at, iat, exp }: RefreshTokenType) {
     const date = new Date()
-    this._id = refreshToken._id
-    this.user_id = refreshToken.user_id
-    this.token = refreshToken.token
-    this.created_at = refreshToken.created_at || date
+    this._id = _id
+    this.user_id = user_id
+    this.token = token
+    this.created_at = created_at || date
+    this.iat = new Date(iat * 1000) // Convert Epoch time to Date
+    this.exp = new Date(exp * 1000) // Convert Epoch time to Date
   }
 }
