@@ -19,3 +19,11 @@ Một collection chỉ có 1 index text
 - Single Field Index: Index trên một trường duy nhất
 - Compound Index: Index trên nhiều trường
 - Search Index: Index trên một trường có kiểu dữ liệu là string, dùng để tìm kiếm
+
+## 2. Tối ưu khác
+
+Ngoài việc index thì dưới đây là 1 số tips để có thể tối ưu hơn
+
+- Phân tích câu truy vấn với `explain`
+- Dùng MongoDB Driver lúc nào cũng nhanh hơn dùng các ODM (ORM) như Mongoose, Prisma vì nó bỏ qua lớp ảo hoá và truy vấn trực tiếp vào database
+- Để server MongoDB gần với server của bạn nhất có thể
