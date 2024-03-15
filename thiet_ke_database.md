@@ -238,3 +238,24 @@ interface Hashtag {
   created_at: Date
 }
 ```
+
+## Luồng tạo 1 tweet
+
+Ở đây sẽ giả sử một trường hợp tạo tweet đầy đủ hashtag, mention và media
+Một body đầy đủ sẽ như thế nào
+
+```ts
+interface TweetRequestBody {
+  type: TweetType
+  audience: TweetAudience
+  content: string
+  parent_id: null | string // chỉ null khi tweet gốc, không thì là tweet_id cha dạng string
+  hashtags: string[] // tên của hashtag dạng ['javascript','reactjs']
+  mentions: string[] // string dạng user_id[]
+  medias: Media[]
+  guest_views: number
+  user_views: number
+  created_at: Date
+  updated_at: Date
+}
+```
