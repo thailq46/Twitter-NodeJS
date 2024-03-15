@@ -37,6 +37,9 @@ class DatabaseService {
   indexVideoStatus() {
     this.videoStatus.createIndex({ name: 1 })
   }
+  indexFollowers() {
+    this.followers.createIndex({ user_id: 1, followed_user_id: 1 })
+  }
 
   get users(): Collection<User> {
     return this.db.collection(process.env.DB_USERS_COLLECTION as string)
