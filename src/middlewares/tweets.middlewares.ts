@@ -1,10 +1,10 @@
-import { checkSchema } from 'express-validator'
-import { isEmpty } from 'lodash'
-import { ObjectId } from 'mongodb'
-import { MediaType, TweetAudience, TweetType } from '~/constants/enums'
-import { TWEETS_MESSAGE } from '~/constants/messages'
-import { numberEnumToArray } from '~/utils/common'
-import { validate } from '~/utils/validation'
+import {checkSchema} from 'express-validator'
+import {isEmpty} from 'lodash'
+import {ObjectId} from 'mongodb'
+import {MediaType, TweetAudience, TweetType} from '~/constants/enums'
+import {TWEETS_MESSAGE} from '~/constants/messages'
+import {numberEnumToArray} from '~/utils/common'
+import {validate} from '~/utils/validation'
 
 const tweetTypes = numberEnumToArray(TweetType)
 const tweetAudiences = numberEnumToArray(TweetAudience)
@@ -26,7 +26,7 @@ export const createTweetValidator = validate(
     },
     parent_id: {
       custom: {
-        options: (value, { req }) => {
+        options: (value, {req}) => {
           const type = req.body.type as TweetType
           // Nếu type là retweet, comment, quotetweet thì parent_id phải là tweet_id của tweet cha
           if ([TweetType.Retweet, TweetType.Comment, TweetType.QuoteTweet].includes(type) && !ObjectId.isValid(value)) {
@@ -45,7 +45,7 @@ export const createTweetValidator = validate(
         errorMessage: TWEETS_MESSAGE.CONTENT_MUST_BE_A_STRING
       },
       custom: {
-        options: (value, { req }) => {
+        options: (value, {req}) => {
           const type = req.body.type as TweetType
           const hashtags = req.body.hashtags as string[]
           const mentions = req.body.mentions as string[]
@@ -71,7 +71,7 @@ export const createTweetValidator = validate(
         errorMessage: TWEETS_MESSAGE.HASHTAGS_MUST_BE_AN_ARRAY
       },
       custom: {
-        options: (value, { req }) => {
+        options: (value, {req}) => {
           // Yêu cầu mỗi phần tử trong array là string
           if (value.some((item: any) => typeof item !== 'string')) {
             throw new Error(TWEETS_MESSAGE.HASHTAGS_MUST_BE_AN_ARRAY_OF_STRING)
@@ -85,7 +85,7 @@ export const createTweetValidator = validate(
         errorMessage: TWEETS_MESSAGE.MENTIONS_MUST_BE_AN_ARRAY
       },
       custom: {
-        options: (value, { req }) => {
+        options: (value, {req}) => {
           // Yêu cầu mỗi phần tử trong array là user_id
           if (value.some((item: any) => !ObjectId.isValid(item))) {
             throw new Error(TWEETS_MESSAGE.MENTIONS_MUST_BE_AN_ARRAY_OF_USER_ID)
@@ -99,7 +99,7 @@ export const createTweetValidator = validate(
         errorMessage: TWEETS_MESSAGE.MEDIAS_MUST_BE_AN_ARRAY
       },
       custom: {
-        options: (value, { req }) => {
+        options: (value, {req}) => {
           // Yêu cầu mỗi phần tử trong array là Media Object
           if (
             value.some((item: any) => {
