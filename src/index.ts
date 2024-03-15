@@ -11,6 +11,7 @@ import cors from 'cors'
 config()
 databaseService.connect().then(() => {
   databaseService.indexUsers()
+  databaseService.indexRefreshToken()
 })
 
 const app = express()
