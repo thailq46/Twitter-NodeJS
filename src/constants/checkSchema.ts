@@ -1,5 +1,5 @@
-import { ParamSchema } from 'express-validator'
-import { USERS_MESSAGE } from './messages'
+import {ParamSchema} from 'express-validator'
+import {USERS_MESSAGE} from './messages'
 import e from 'express'
 
 export const emailCheckSchema: ParamSchema = {
@@ -20,7 +20,7 @@ export const passwordCheckSchema: ParamSchema = {
     errorMessage: USERS_MESSAGE.PASSWORD_MUST_BE_A_STRING
   },
   isLength: {
-    options: { min: 6, max: 50 },
+    options: {min: 6, max: 50},
     errorMessage: USERS_MESSAGE.PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50
   },
   isStrongPassword: {
@@ -43,7 +43,7 @@ export const confirmPasswordCheckSchema: ParamSchema = {
     errorMessage: USERS_MESSAGE.CONFIRM_PASSWORD_MUST_BE_A_STRING
   },
   isLength: {
-    options: { min: 6, max: 50 },
+    options: {min: 6, max: 50},
     errorMessage: USERS_MESSAGE.CONFIRM_PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50
   },
   isStrongPassword: {
@@ -66,7 +66,7 @@ export const nameCheckSchema: ParamSchema = {
     errorMessage: USERS_MESSAGE.NAME_MUST_BE_A_STRING
   },
   isLength: {
-    options: { min: 1, max: 100 },
+    options: {min: 1, max: 100},
     errorMessage: USERS_MESSAGE.NAME_LENGTH_MUST_BE_FROM_1_TO_100
   },
   trim: true
@@ -74,7 +74,7 @@ export const nameCheckSchema: ParamSchema = {
 
 export const dateOfBirthCheckSchema: ParamSchema = {
   isISO8601: {
-    options: { strict: true, strictSeparator: true },
+    options: {strict: true, strictSeparator: true},
     errorMessage: USERS_MESSAGE.DATE_OF_BIRTH_MUST_BE_ISO8601
   }
 }
@@ -87,7 +87,7 @@ export const oldPasswordCheckSchema: ParamSchema = {
     errorMessage: USERS_MESSAGE.OLD_PASSWORD_MUST_BE_A_STRING
   },
   isLength: {
-    options: { min: 6, max: 50 },
+    options: {min: 6, max: 50},
     errorMessage: USERS_MESSAGE.OLD_PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50
   },
   isStrongPassword: {

@@ -1,19 +1,19 @@
-import { NextFunction, Request, Response } from 'express'
-import { checkSchema } from 'express-validator'
-import { JsonWebTokenError } from 'jsonwebtoken'
+import {NextFunction, Request, Response} from 'express'
+import {checkSchema} from 'express-validator'
+import {JsonWebTokenError} from 'jsonwebtoken'
 import HTTP_STATUS from '~/constants/httpStatus'
-import { USERS_MESSAGE } from '~/constants/messages'
-import { ErrorWithStatus } from '~/models/Errors'
+import {USERS_MESSAGE} from '~/constants/messages'
+import {ErrorWithStatus} from '~/models/Errors'
 import databaseService from '~/services/database.services'
 import usersService from '~/services/users.services'
-import { hashPassword } from '~/utils/crypto'
-import { verifyToken } from '~/utils/jwt'
-import { validate } from '~/utils/validation'
-import { capitalize } from 'lodash'
-import { ObjectId } from 'mongodb'
-import { TokenPayload } from '~/models/request/User.requests'
-import { UserVerifyStatus } from '~/constants/enums'
-import { REGEX_USERNAME } from '~/constants/regex'
+import {hashPassword} from '~/utils/crypto'
+import {verifyToken} from '~/utils/jwt'
+import {validate} from '~/utils/validation'
+import {capitalize} from 'lodash'
+import {ObjectId} from 'mongodb'
+import {TokenPayload} from '~/models/request/User.requests'
+import {UserVerifyStatus} from '~/constants/enums'
+import {REGEX_USERNAME} from '~/constants/regex'
 import {
   nameCheckSchema,
   passwordCheckSchema,
@@ -29,7 +29,7 @@ export const loginValidator = validate(
       email: {
         ...emailCheckSchema,
         custom: {
-          options: async (value, { req }) => {
+          options: async (value, {req}) => {
             const user = await databaseService.users.findOne({
               email: value,
               password: hashPassword(req.body.password)
@@ -68,7 +68,7 @@ export const registerValidator = validate(
       confirm_password: {
         ...confirmPasswordCheckSchema,
         custom: {
-          options: (value, { req }) => {
+          options: (value, {req}) => {
             if (value !== req.body.password) {
               throw new Error(USERS_MESSAGE.PASSWORD_AND_CONFIRM_PASSWORD_DO_NOT_MATCH)
             }
@@ -90,7 +90,7 @@ export const accessTokenValidator = validate(
           errorMessage: USERS_MESSAGE.ACCESS_TOKEN_IS_REQUIRED
         },
         custom: {
-          options: async (value: string, { req }) => {
+          options: async (value: string, {req}) => {
             if (!value) {
               throw new ErrorWithStatus({
                 message: USERS_MESSAGE.REFRESH_TOKEN_IS_REQUIRED,
@@ -133,7 +133,7 @@ export const refreshTokenValidator = validate(
           errorMessage: USERS_MESSAGE.REFRESH_TOKEN_IS_REQUIRED
         },
         custom: {
-          options: async (value: string, { req }) => {
+          options: async (value: string, {req}) => {
             try {
               if (!value) {
                 throw new ErrorWithStatus({
@@ -183,7 +183,7 @@ export const emailVerifyTokenValidator = validate(
           errorMessage: USERS_MESSAGE.EMAIL_VERIFY_TOKEN_IS_REQUIRED
         },
         custom: {
-          options: async (value: string, { req }) => {
+          options: async (value: string, {req}) => {
             try {
               const decoded_email_verify_token = await verifyToken({
                 token: value,
@@ -211,7 +211,7 @@ export const forgotPasswordValidator = validate(
       email: {
         ...emailCheckSchema,
         custom: {
-          options: async (value, { req }) => {
+          options: async (value, {req}) => {
             const user = await databaseService.users.findOne({
               email: value
             })
@@ -234,7 +234,7 @@ export const verifyForgotPasswordTokenValidator = validate(
       forgot_password_token: {
         trim: true,
         custom: {
-          options: async (value: string, { req }) => {
+          options: async (value: string, {req}) => {
             if (!value) {
               throw new ErrorWithStatus({
                 message: USERS_MESSAGE.FORGOT_PASSWORD_TOKEN_IS_REQUIRED,
@@ -246,8 +246,8 @@ export const verifyForgotPasswordTokenValidator = validate(
                 token: value,
                 serectOrPublicKey: process.env.JWT_SECRET_FORGOT_PASSWORD_TOKEN as string
               })
-              const { user_id } = decoded_forgot_password_token
-              const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) })
+              const {user_id} = decoded_forgot_password_token
+              const user = await databaseService.users.findOne({_id: new ObjectId(user_id)})
               if (!user) {
                 throw new ErrorWithStatus({
                   message: USERS_MESSAGE.USER_NOT_FOUND,
@@ -285,7 +285,7 @@ export const resetPasswordValidator = validate(
       confirm_password: {
         ...confirmPasswordCheckSchema,
         custom: {
-          options: (value, { req }) => {
+          options: (value, {req}) => {
             if (value !== req.body.password) {
               throw new Error(USERS_MESSAGE.PASSWORD_AND_CONFIRM_PASSWORD_DO_NOT_MATCH)
             }
@@ -295,7 +295,7 @@ export const resetPasswordValidator = validate(
       },
       forgot_password_token: {
         custom: {
-          options: async (value: string, { req }) => {
+          options: async (value: string, {req}) => {
             if (!value) {
               throw new ErrorWithStatus({
                 message: USERS_MESSAGE.FORGOT_PASSWORD_TOKEN_IS_REQUIRED,
@@ -324,7 +324,7 @@ export const resetPasswordValidator = validate(
 )
 
 export const verifiedUserValidator = (req: Request, res: Response, next: NextFunction) => {
-  const { verify } = req.decoded_authorization as TokenPayload
+  const {verify} = req.decoded_authorization as TokenPayload
   if (verify !== UserVerifyStatus.Verified) {
     // Khi next 1 error thì sẽ chạy đến middleware error handler. Đây là middleware đồng bộ throw thì express validator tự động next giá trị throw (Chỉ áp dụng với synchronous)
     return next(
@@ -354,7 +354,7 @@ export const updateMeValidator = validate(
           errorMessage: USERS_MESSAGE.BIO_MUST_BE_A_STRING
         },
         isLength: {
-          options: { min: 1, max: 200 },
+          options: {min: 1, max: 200},
           errorMessage: USERS_MESSAGE.BIO_LENGTH_MUST_BE_FROM_1_TO_200
         },
         trim: true
@@ -365,7 +365,7 @@ export const updateMeValidator = validate(
           errorMessage: USERS_MESSAGE.LOCATION_MUST_BE_A_STRING
         },
         isLength: {
-          options: { min: 1, max: 200 },
+          options: {min: 1, max: 200},
           errorMessage: USERS_MESSAGE.LOCATION_LENGTH_MUST_BE_FROM_1_TO_200
         },
         trim: true
@@ -376,7 +376,7 @@ export const updateMeValidator = validate(
           errorMessage: USERS_MESSAGE.WEBSITE_MUST_BE_A_STRING
         },
         isLength: {
-          options: { min: 1, max: 200 },
+          options: {min: 1, max: 200},
           errorMessage: USERS_MESSAGE.WEBSITE_LENGTH_MUST_BE_FROM_1_TO_200
         },
         trim: true
@@ -387,7 +387,7 @@ export const updateMeValidator = validate(
           errorMessage: USERS_MESSAGE.USERNAME_MUST_BE_A_STRING
         },
         custom: {
-          options: async (value: string, { req }) => {
+          options: async (value: string, {req}) => {
             if (!REGEX_USERNAME.test(value)) {
               throw Error(USERS_MESSAGE.USERNAME_INVALID)
             }
@@ -409,7 +409,7 @@ export const updateMeValidator = validate(
           errorMessage: USERS_MESSAGE.IMAGE_URL_MUST_BE_A_STRING
         },
         isLength: {
-          options: { min: 1, max: 400 },
+          options: {min: 1, max: 400},
           errorMessage: USERS_MESSAGE.IMAGE_URL_LENGTH
         },
         trim: true
@@ -420,7 +420,7 @@ export const updateMeValidator = validate(
           errorMessage: USERS_MESSAGE.IMAGE_URL_MUST_BE_A_STRING
         },
         isLength: {
-          options: { min: 1, max: 400 },
+          options: {min: 1, max: 400},
           errorMessage: USERS_MESSAGE.IMAGE_URL_LENGTH
         },
         trim: true
@@ -438,7 +438,7 @@ export const followValidator = validate(
           errorMessage: USERS_MESSAGE.FOLLOW_USER_ID_IS_REQUIRED
         },
         custom: {
-          options: async (value: string, { req }) => {
+          options: async (value: string, {req}) => {
             if (!ObjectId.isValid(value)) {
               throw new ErrorWithStatus({
                 message: USERS_MESSAGE.INVALID_FOLLOWED_USER_ID,
@@ -469,7 +469,7 @@ export const unfollowValidator = validate(
     {
       user_id: {
         custom: {
-          options: async (value: string, { req }) => {
+          options: async (value: string, {req}) => {
             if (!ObjectId.isValid(value)) {
               throw new ErrorWithStatus({
                 message: USERS_MESSAGE.INVALID_USER_ID,
@@ -501,8 +501,8 @@ export const changePasswordValidator = validate(
       old_password: {
         ...oldPasswordCheckSchema,
         custom: {
-          options: async (value: string, { req }) => {
-            const { user_id } = (req as Request).decoded_authorization as TokenPayload
+          options: async (value: string, {req}) => {
+            const {user_id} = (req as Request).decoded_authorization as TokenPayload
             const user = await databaseService.users.findOne({
               _id: new ObjectId(user_id)
             })
@@ -512,7 +512,7 @@ export const changePasswordValidator = validate(
                 status: HTTP_STATUS.NOT_FOUND
               })
             }
-            const { password } = user
+            const {password} = user
             if (password !== hashPassword(value)) {
               throw new ErrorWithStatus({
                 message: USERS_MESSAGE.OLD_PASSWORD_INCORRECT,
@@ -527,7 +527,7 @@ export const changePasswordValidator = validate(
       confirm_new_password: {
         ...confirmPasswordCheckSchema,
         custom: {
-          options: (value: string, { req }) => {
+          options: (value: string, {req}) => {
             if (value !== req.body.new_password) {
               throw new Error(USERS_MESSAGE.PASSWORD_AND_CONFIRM_PASSWORD_DO_NOT_MATCH)
             }

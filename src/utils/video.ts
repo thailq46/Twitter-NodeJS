@@ -5,9 +5,9 @@ const MAXIMUM_BITRATE_1080P = 8 * 10 ** 6 // 8Mbps
 const MAXIMUM_BITRATE_1440P = 16 * 10 ** 6 // 16Mbps
 
 export const checkVideoHasAudio = async (filePath: string) => {
-  const { $ } = await import('zx')
+  const {$} = await import('zx')
   const slash = (await import('slash')).default
-  const { stdout } = await $`ffprobe ${[
+  const {stdout} = await $`ffprobe ${[
     '-v',
     'error',
     '-select_streams',
@@ -22,9 +22,9 @@ export const checkVideoHasAudio = async (filePath: string) => {
 }
 
 const getBitrate = async (filePath: string) => {
-  const { $ } = await import('zx')
+  const {$} = await import('zx')
   const slash = (await import('slash')).default
-  const { stdout } = await $`ffprobe ${[
+  const {stdout} = await $`ffprobe ${[
     '-v',
     'error',
     '-select_streams',
@@ -39,10 +39,10 @@ const getBitrate = async (filePath: string) => {
 }
 
 const getResolution = async (filePath: string) => {
-  const { $ } = await import('zx')
+  const {$} = await import('zx')
   const slash = (await import('slash')).default
 
-  const { stdout } = await $`ffprobe ${[
+  const {stdout} = await $`ffprobe ${[
     '-v',
     'error',
     '-select_streams',
@@ -61,7 +61,7 @@ const getResolution = async (filePath: string) => {
   }
 }
 
-const getWidth = (height: number, resolution: { width: number; height: number }) => {
+const getWidth = (height: number, resolution: {width: number; height: number}) => {
   const width = Math.round((height * resolution.width) / resolution.height)
   // Vì ffmpeg yêu cầu width và height phải là số chẵn
   return width % 2 === 0 ? width : width + 1
@@ -92,7 +92,7 @@ const encodeMax720 = async ({
   outputSegmentPath,
   resolution
 }: EncodeByResolution) => {
-  const { $ } = await import('zx')
+  const {$} = await import('zx')
   const slash = (await import('slash')).default
 
   const args = [
@@ -155,7 +155,7 @@ const encodeMax1080 = async ({
   outputSegmentPath,
   resolution
 }: EncodeByResolution) => {
-  const { $ } = await import('zx')
+  const {$} = await import('zx')
   const slash = (await import('slash')).default
 
   const args = ['-y', '-i', slash(inputPath), '-preset', 'veryslow', '-g', '48', '-crf', '17', '-sc_threshold', '0']
@@ -212,7 +212,7 @@ const encodeMax1440 = async ({
   outputSegmentPath,
   resolution
 }: EncodeByResolution) => {
-  const { $ } = await import('zx')
+  const {$} = await import('zx')
   const slash = (await import('slash')).default
 
   const args = ['-y', '-i', slash(inputPath), '-preset', 'veryslow', '-g', '48', '-crf', '17', '-sc_threshold', '0']
@@ -275,7 +275,7 @@ const encodeMaxOriginal = async ({
   outputSegmentPath,
   resolution
 }: EncodeByResolution) => {
-  const { $ } = await import('zx')
+  const {$} = await import('zx')
   const slash = (await import('slash')).default
 
   const args = ['-y', '-i', slash(inputPath), '-preset', 'veryslow', '-g', '48', '-crf', '17', '-sc_threshold', '0']

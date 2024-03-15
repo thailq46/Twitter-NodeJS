@@ -1,5 +1,5 @@
-import { config } from 'dotenv'
-import { createHash } from 'crypto'
+import {config} from 'dotenv'
+import {createHash} from 'crypto'
 
 config()
 

@@ -1,8 +1,8 @@
-import e, { Request, Response, NextFunction } from 'express'
+import e, {Request, Response, NextFunction} from 'express'
 import path from 'path'
-import { UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR } from '~/constants/dir'
+import {UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR} from '~/constants/dir'
 import HTTP_STATUS from '~/constants/httpStatus'
-import { USERS_MESSAGE } from '~/constants/messages'
+import {USERS_MESSAGE} from '~/constants/messages'
 import mediasService from '~/services/medias.services'
 import fs from 'fs'
 
@@ -19,7 +19,7 @@ export const uploadImageController = async (req: Request, res: Response, next: N
 }
 
 export const serveImageController = (req: Request, res: Response) => {
-  const { name } = req.params
+  const {name} = req.params
   return res.sendFile(path.resolve(UPLOAD_IMAGE_DIR, name), (err) => {
     if (err) {
       return res.status((err as any).status).json({
@@ -36,7 +36,7 @@ export const serveVideoStreamController = async (req: Request, res: Response) =>
   if (!range) {
     return res.status(HTTP_STATUS.BAD_REQUEST).send('Requires Range header')
   }
-  const { name } = req.params
+  const {name} = req.params
   const videoPath = path.resolve(UPLOAD_VIDEO_DIR, name)
   // 1MB = 10^6 bytes (Tính theo hệ 10, đây là thứ chúng ta hay thấy trên UI)
   // Còn nếu tính theo hệ nhị phân thì 1MB = 2^20 bytes (1024 * 1024 bytes)
@@ -60,7 +60,7 @@ export const serveVideoStreamController = async (req: Request, res: Response) =>
     'Content-Type': contentType
   }
   res.writeHead(HTTP_STATUS.PARTIAL_CONTENT, headers)
-  const videoSteams = fs.createReadStream(videoPath, { start, end })
+  const videoSteams = fs.createReadStream(videoPath, {start, end})
   videoSteams.pipe(res)
 }
 
@@ -80,7 +80,7 @@ export const uploadVideoHLSController = async (req: Request, res: Response, next
   })
 }
 export const serveM3U8Controller = (req: Request, res: Response) => {
-  const { id } = req.params
+  const {id} = req.params
   return res.sendFile(path.resolve(UPLOAD_VIDEO_DIR, id, 'master.m3u8'), (err) => {
     if (err) {
       return res.status((err as any).status).send(USERS_MESSAGE.VIDEO_NOT_FOUND)
@@ -88,7 +88,7 @@ export const serveM3U8Controller = (req: Request, res: Response) => {
   })
 }
 export const serveSegmentController = (req: Request, res: Response) => {
-  const { id, v, segment } = req.params
+  const {id, v, segment} = req.params
   // segment: 0.ts, 1.ts, 2.ts, ...
   return res.sendFile(path.resolve(UPLOAD_VIDEO_DIR, id, v, segment), (err) => {
     if (err) {
@@ -98,7 +98,7 @@ export const serveSegmentController = (req: Request, res: Response) => {
 }
 
 export const videoStatusController = async (req: Request, res: Response) => {
-  const { id } = req.params
+  const {id} = req.params
   const result = await mediasService.getVideoStatus(id as string)
   return res.json({
     message: USERS_MESSAGE.GET_VIDEO_STATUS_SUCCESS,

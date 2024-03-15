@@ -1,8 +1,8 @@
-import { Request } from 'express'
-import formidable, { File } from 'formidable'
+import {Request} from 'express'
+import formidable, {File} from 'formidable'
 import fs from 'fs'
 import path from 'path'
-import { UPLOAD_IMAGE_TEMP_DIR, UPLOAD_VIDEO_DIR, UPLOAD_VIDEO_TEMP_DIR } from '~/constants/dir'
+import {UPLOAD_IMAGE_TEMP_DIR, UPLOAD_VIDEO_DIR, UPLOAD_VIDEO_TEMP_DIR} from '~/constants/dir'
 
 const MAX_FILES_IMAGE = 4
 const MAX_FILE_SIZE_IMAGE = 3000 * 1024
@@ -31,7 +31,7 @@ export const handleUploadImage = async (req: Request) => {
     maxFileSize: MAX_FILE_SIZE_IMAGE,
     maxTotalFileSize: MAX_TOTAL_FILE_SIZE_IMAGE,
     keepExtensions: true,
-    filter: ({ name, originalFilename, mimetype }) => {
+    filter: ({name, originalFilename, mimetype}) => {
       const valid = name === 'image' && Boolean(mimetype?.includes('image/'))
       if (!valid) {
         form.emit('error' as any, new Error('File type is not valid') as any)
@@ -69,7 +69,7 @@ export const handleUploadVideo = async (req: Request) => {
     uploadDir: FOLDER_PATH,
     maxFiles: MAX_FILES_VIDEO,
     maxFileSize: MAX_FILE_SIZE_VIDEO,
-    filter: ({ name, originalFilename, mimetype }) => {
+    filter: ({name, originalFilename, mimetype}) => {
       const valid = (name === 'video' && Boolean(mimetype?.includes('mp4'))) || Boolean(mimetype?.includes('quicktime'))
       if (!valid) {
         form.emit('error' as any, new Error('File type is not valid') as any)

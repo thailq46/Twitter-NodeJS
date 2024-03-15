@@ -95,5 +95,6 @@ export const TWEETS_MESSAGE = {
 } as const
 
 export const BOOKMARKS_MESSAGE = {
-  BOOKMARK_TWEET_SUCCESS: 'Tweet bookmarked successfully'
+  BOOKMARK_TWEET_SUCCESS: 'Tweet bookmarked successfully',
+  UNBOOKMARK_TWEET_SUCCESS: 'Tweet unbookmarked successfully'
 } as const

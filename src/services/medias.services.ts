@@ -1,15 +1,15 @@
-import { Request } from 'express'
-import { getNameFromFullname, handleUploadImage, handleUploadVideo } from '~/utils/file'
+import {Request} from 'express'
+import {getNameFromFullname, handleUploadImage, handleUploadVideo} from '~/utils/file'
 import sharp from 'sharp'
-import { UPLOAD_IMAGE_DIR } from '~/constants/dir'
+import {UPLOAD_IMAGE_DIR} from '~/constants/dir'
 import path from 'path'
 import fs from 'fs'
 import fsPromise from 'fs/promises'
-import { isProduction } from '~/utils/config'
-import { config } from 'dotenv'
-import { EncodingStatus, MediaType } from '~/constants/enums'
-import { Media } from '~/models/Other'
-import { encodeHLSWithMultipleVideoStreams } from '~/utils/video'
+import {isProduction} from '~/utils/config'
+import {config} from 'dotenv'
+import {EncodingStatus, MediaType} from '~/constants/enums'
+import {Media} from '~/models/Other'
+import {encodeHLSWithMultipleVideoStreams} from '~/utils/video'
 import databaseService from './database.services'
 import VideoStatus from '~/models/schemas/VideoStatus.schema'
 config()
@@ -153,7 +153,7 @@ class MediasService {
   }
 
   async getVideoStatus(id: string) {
-    const data = await databaseService.videoStatus.findOne({ name: id })
+    const data = await databaseService.videoStatus.findOne({name: id})
     return data
   }
 }

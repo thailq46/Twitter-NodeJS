@@ -1,4 +1,4 @@
-import { ObjectId } from 'mongodb'
+import {ObjectId} from 'mongodb'
 
 interface RefreshTokenType {
   _id?: ObjectId
@@ -16,7 +16,7 @@ export default class RefreshToken {
   user_id: ObjectId
   iat: Date
   exp: Date
-  constructor({ _id, user_id, token, created_at, iat, exp }: RefreshTokenType) {
+  constructor({_id, user_id, token, created_at, iat, exp}: RefreshTokenType) {
     const date = new Date()
     this._id = _id
     this.user_id = user_id

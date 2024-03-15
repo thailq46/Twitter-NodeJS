@@ -1,21 +1,21 @@
-import { config } from 'dotenv'
+import {config} from 'dotenv'
 import User from '~/models/schemas/User.schema'
 import databaseService from './database.services'
-import { RegisterReqBody, UpdateMeReqBody } from '~/models/request/User.requests'
-import { hashPassword } from '~/utils/crypto'
-import { signToken, verifyToken } from '~/utils/jwt'
-import { TokenType, UserVerifyStatus } from '~/constants/enums'
+import {RegisterReqBody, UpdateMeReqBody} from '~/models/request/User.requests'
+import {hashPassword} from '~/utils/crypto'
+import {signToken, verifyToken} from '~/utils/jwt'
+import {TokenType, UserVerifyStatus} from '~/constants/enums'
 import RefreshToken from '~/models/schemas/RefreshToken.schema'
-import { ObjectId } from 'mongodb'
-import { USERS_MESSAGE } from '~/constants/messages'
-import { ErrorWithStatus } from '~/models/Errors'
+import {ObjectId} from 'mongodb'
+import {USERS_MESSAGE} from '~/constants/messages'
+import {ErrorWithStatus} from '~/models/Errors'
 import HTTP_STATUS from '~/constants/httpStatus'
 import Follower from '~/models/schemas/Follower.schema'
 import axios from 'axios'
 
 config()
 class UsersService {
-  private async signAccessToken({ user_id, verify }: { user_id: string; verify: UserVerifyStatus }) {
+  private async signAccessToken({user_id, verify}: {user_id: string; verify: UserVerifyStatus}) {
     return await signToken({
       payload: {
         user_id,
@@ -23,18 +23,10 @@ class UsersService {
         verify
       },
       privateKey: process.env.JWT_SECRET_ACCESS_TOKEN as string,
-      options: { expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN }
+      options: {expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN}
     })
   }
-  private async signRefreshToken({
-    user_id,
-    verify,
-    exp
-  }: {
-    user_id: string
-    verify: UserVerifyStatus
-    exp?: number
-  }) {
+  private async signRefreshToken({user_id, verify, exp}: {user_id: string; verify: UserVerifyStatus; exp?: number}) {
     if (exp) {
       return await signToken({
         payload: {
@@ -53,10 +45,10 @@ class UsersService {
         verify
       },
       privateKey: process.env.JWT_SECRET_REFRESH_TOKEN as string,
-      options: { expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN }
+      options: {expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN}
     })
   }
-  private signEmailVerifyToken({ user_id, verify }: { user_id: string; verify: UserVerifyStatus }) {
+  private signEmailVerifyToken({user_id, verify}: {user_id: string; verify: UserVerifyStatus}) {
     return signToken({
       payload: {
         user_id,
@@ -64,10 +56,10 @@ class UsersService {
         verify
       },
       privateKey: process.env.JWT_SECRET_EMAIL_VERIFY_TOKEN as string,
-      options: { expiresIn: process.env.EMAIL_VERIFY_TOKEN_EXPIRES_IN }
+      options: {expiresIn: process.env.EMAIL_VERIFY_TOKEN_EXPIRES_IN}
     })
   }
-  private signForgotPasswordToken({ user_id, verify }: { user_id: string; verify: UserVerifyStatus }) {
+  private signForgotPasswordToken({user_id, verify}: {user_id: string; verify: UserVerifyStatus}) {
     return signToken({
       payload: {
         user_id,
@@ -75,11 +67,11 @@ class UsersService {
         verify
       },
       privateKey: process.env.JWT_SECRET_FORGOT_PASSWORD_TOKEN as string,
-      options: { expiresIn: process.env.FORGOT_PASSWORD_TOKEN_EXPIRES_IN }
+      options: {expiresIn: process.env.FORGOT_PASSWORD_TOKEN_EXPIRES_IN}
     })
   }
-  private signAccessTokenAndRefreshToken({ user_id, verify }: { user_id: string; verify: UserVerifyStatus }) {
-    return Promise.all([this.signAccessToken({ user_id, verify }), this.signRefreshToken({ user_id, verify })])
+  private signAccessTokenAndRefreshToken({user_id, verify}: {user_id: string; verify: UserVerifyStatus}) {
+    return Promise.all([this.signAccessToken({user_id, verify}), this.signRefreshToken({user_id, verify})])
   }
 
   private decodeRefreshToken(refresh_token: string) {
@@ -110,10 +102,10 @@ class UsersService {
       verify: UserVerifyStatus.Unverified
     })
     // await databaseService.closeConnection()
-    const { iat, exp } = await this.decodeRefreshToken(refresh_token)
+    const {iat, exp} = await this.decodeRefreshToken(refresh_token)
     // Sau khi register new user thì insert refresh token của user vừa tạo vào database
     await databaseService.refreshTokens.insertOne(
-      new RefreshToken({ user_id: new ObjectId(user_id), token: refresh_token, iat, exp })
+      new RefreshToken({user_id: new ObjectId(user_id), token: refresh_token, iat, exp})
     )
 
     console.log('email_verify_token', email_verify_token)
@@ -126,7 +118,7 @@ class UsersService {
 
   async checkUserExists(email: string) {
     try {
-      const user = await databaseService.users.findOne({ email })
+      const user = await databaseService.users.findOne({email})
       // console.log('checkUserExists', user)
       return Boolean(user)
     } catch (error) {
@@ -141,7 +133,7 @@ class UsersService {
       redirect_uri: process.env.GOOGLE_REDIRECT_URI,
       grant_type: 'authorization_code'
     }
-    const { data } = await axios.post('https://oauth2.googleapis.com/token', body, {
+    const {data} = await axios.post('https://oauth2.googleapis.com/token', body, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
       }
@@ -153,7 +145,7 @@ class UsersService {
   }
 
   private async getGoogleUserInfo(id_token: string, access_token: string) {
-    const { data } = await axios.get('https://www.googleapis.com/oauth2/v1/userinfo', {
+    const {data} = await axios.get('https://www.googleapis.com/oauth2/v1/userinfo', {
       params: {
         access_token,
         alt: 'json'
@@ -176,7 +168,7 @@ class UsersService {
 
   async oauth(code: string) {
     // Nhận được code => gọi lên Google API để lấy id_token và access_token
-    const { id_token, access_token } = await this.getOAuthGoogleToken(code)
+    const {id_token, access_token} = await this.getOAuthGoogleToken(code)
     const userInfo = await this.getGoogleUserInfo(id_token, access_token)
     console.log(userInfo)
     // Check đã verify email chưa
@@ -187,16 +179,16 @@ class UsersService {
       })
     }
     // Check xem email đã tồn tại trong db chưa
-    const user = await databaseService.users.findOne({ email: userInfo.email })
+    const user = await databaseService.users.findOne({email: userInfo.email})
     // Nếu tồn tại thì cho login vào
     if (user) {
       const [access_token, refresh_token] = await this.signAccessTokenAndRefreshToken({
         user_id: user._id.toString(),
         verify: user.verify
       })
-      const { iat, exp } = await this.decodeRefreshToken(refresh_token)
+      const {iat, exp} = await this.decodeRefreshToken(refresh_token)
       await databaseService.refreshTokens.insertOne(
-        new RefreshToken({ user_id: user._id, token: refresh_token, iat, exp })
+        new RefreshToken({user_id: user._id, token: refresh_token, iat, exp})
       )
       return {
         access_token,
@@ -214,16 +206,16 @@ class UsersService {
         password: hashPassword(password),
         confirm_password: hashPassword(password)
       })
-      return { ...data, newUser: 1, verify: UserVerifyStatus.Unverified }
+      return {...data, newUser: 1, verify: UserVerifyStatus.Unverified}
     }
   }
 
-  async login({ user_id, verify }: { user_id: string; verify: UserVerifyStatus }) {
-    const [access_token, refresh_token] = await this.signAccessTokenAndRefreshToken({ user_id, verify })
+  async login({user_id, verify}: {user_id: string; verify: UserVerifyStatus}) {
+    const [access_token, refresh_token] = await this.signAccessTokenAndRefreshToken({user_id, verify})
 
-    const { iat, exp } = await this.decodeRefreshToken(refresh_token)
+    const {iat, exp} = await this.decodeRefreshToken(refresh_token)
     await databaseService.refreshTokens.insertOne(
-      new RefreshToken({ user_id: new ObjectId(user_id), token: refresh_token, iat, exp })
+      new RefreshToken({user_id: new ObjectId(user_id), token: refresh_token, iat, exp})
     )
 
     return {
@@ -233,7 +225,7 @@ class UsersService {
   }
 
   async logout(refresh_token: string) {
-    const result = await databaseService.refreshTokens.deleteOne({ token: refresh_token })
+    const result = await databaseService.refreshTokens.deleteOne({token: refresh_token})
     return {
       message: USERS_MESSAGE.LOGOUT_SUCCESS,
       result
@@ -252,9 +244,9 @@ class UsersService {
     exp: number
   }) {
     const [new_access_token, new_refresh_token] = await Promise.all([
-      this.signAccessToken({ user_id, verify }),
-      this.signRefreshToken({ user_id, verify, exp }),
-      databaseService.refreshTokens.deleteOne({ token: refresh_token })
+      this.signAccessToken({user_id, verify}),
+      this.signRefreshToken({user_id, verify, exp}),
+      databaseService.refreshTokens.deleteOne({token: refresh_token})
     ])
     const decoded_refresh_token = await this.decodeRefreshToken(new_refresh_token)
     await databaseService.refreshTokens.insertOne(
@@ -273,9 +265,9 @@ class UsersService {
 
   async verifyEmail(user_id: string) {
     const [token] = await Promise.all([
-      this.signAccessTokenAndRefreshToken({ user_id, verify: UserVerifyStatus.Verified }),
+      this.signAccessTokenAndRefreshToken({user_id, verify: UserVerifyStatus.Verified}),
       databaseService.users.updateOne(
-        { _id: new ObjectId(user_id) },
+        {_id: new ObjectId(user_id)},
         {
           $set: {
             email_verify_token: '',
@@ -291,9 +283,9 @@ class UsersService {
       )
     ])
     const [access_token, refresh_token] = token
-    const { iat, exp } = await this.decodeRefreshToken(refresh_token)
+    const {iat, exp} = await this.decodeRefreshToken(refresh_token)
     await databaseService.refreshTokens.insertOne(
-      new RefreshToken({ user_id: new ObjectId(user_id), token: refresh_token, iat, exp })
+      new RefreshToken({user_id: new ObjectId(user_id), token: refresh_token, iat, exp})
     )
     return {
       access_token,
@@ -310,7 +302,7 @@ class UsersService {
     console.log('email_verify_token', email_verify_token)
     // Cập nhập lại giá trị email_verify_token trong database
     await databaseService.users.updateOne(
-      { _id: new ObjectId(user_id) },
+      {_id: new ObjectId(user_id)},
       {
         $set: {
           email_verify_token
@@ -325,9 +317,9 @@ class UsersService {
     }
   }
 
-  async forgotPassword({ user_id, verify }: { user_id: string; verify: UserVerifyStatus }) {
-    const forgot_password_token = await this.signForgotPasswordToken({ user_id, verify })
-    await databaseService.users.updateOne({ _id: new ObjectId(user_id) }, [
+  async forgotPassword({user_id, verify}: {user_id: string; verify: UserVerifyStatus}) {
+    const forgot_password_token = await this.signForgotPasswordToken({user_id, verify})
+    await databaseService.users.updateOne({_id: new ObjectId(user_id)}, [
       {
         $set: {
           forgot_password_token,
@@ -364,7 +356,7 @@ class UsersService {
 
   async getMe(user_id: string) {
     const user = await databaseService.users.findOne(
-      { _id: new ObjectId(user_id) },
+      {_id: new ObjectId(user_id)},
       // Những field nào mà không muốn trả về cho user thì dùng projection để loại bỏ
       {
         projection: {
@@ -378,13 +370,13 @@ class UsersService {
   }
 
   async updateMe(user_id: string, payload: UpdateMeReqBody) {
-    const _payload = payload.date_of_birth ? { ...payload, date_of_birth: new Date(payload.date_of_birth) } : payload
+    const _payload = payload.date_of_birth ? {...payload, date_of_birth: new Date(payload.date_of_birth)} : payload
     const user = await databaseService.users.findOneAndUpdate(
-      { _id: new ObjectId(user_id) },
+      {_id: new ObjectId(user_id)},
       [
         {
           $set: {
-            ...(_payload as UpdateMeReqBody & { date_of_birth?: Date }),
+            ...(_payload as UpdateMeReqBody & {date_of_birth?: Date}),
             updated_at: '$$NOW'
           }
         }
@@ -403,7 +395,7 @@ class UsersService {
   }
   async getProfile(username: string) {
     const user = await databaseService.users.findOne(
-      { username },
+      {username},
       {
         projection: {
           password: 0,

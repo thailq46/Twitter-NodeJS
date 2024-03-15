@@ -1,5 +1,5 @@
-import { ObjectId } from 'mongodb'
-import { EncodingStatus } from '~/constants/enums'
+import {ObjectId} from 'mongodb'
+import {EncodingStatus} from '~/constants/enums'
 
 interface VideoStatusType {
   _id?: ObjectId
@@ -17,7 +17,7 @@ export default class VideoStatus {
   message: string
   createdAt: Date
   updatedAt: Date
-  constructor({ name, status, _id, message, createdAt, updatedAt }: VideoStatusType) {
+  constructor({name, status, _id, message, createdAt, updatedAt}: VideoStatusType) {
     const date = new Date()
     this._id = _id
     this.name = name
