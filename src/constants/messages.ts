@@ -93,3 +93,7 @@ export const TWEETS_MESSAGE = {
   MEDIAS_MUST_BE_AN_ARRAY_OF_MEDIA_OBJECT: 'Medias must be an array of media object',
   CREATE_TWEET_SUCCESS: 'Create tweet success'
 } as const
+
+export const BOOKMARKS_MESSAGE = {
+  BOOKMARK_TWEET_SUCCESS: 'Tweet bookmarked successfully'
+} as const

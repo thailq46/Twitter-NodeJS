@@ -1,7 +1,7 @@
 import {TweetRequestBody} from '~/models/request/Tweet.requests'
 import databaseService from './database.services'
 import Tweet from '~/models/schemas/Tweet.schema'
-import {ObjectId, WithId} from 'mongodb'
+import {ObjectId} from 'mongodb'
 import Hashtag from '~/models/schemas/Hashtag.schema'
 
 class TweetsService {
