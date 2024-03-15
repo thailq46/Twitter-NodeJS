@@ -71,7 +71,7 @@ export const createTweetValidator = validate(
         errorMessage: TWEETS_MESSAGE.HASHTAGS_MUST_BE_AN_ARRAY
       },
       custom: {
-        options: (value, {req}) => {
+        options: (value) => {
           // Yêu cầu mỗi phần tử trong array là string
           if (value.some((item: any) => typeof item !== 'string')) {
             throw new Error(TWEETS_MESSAGE.HASHTAGS_MUST_BE_AN_ARRAY_OF_STRING)
@@ -85,7 +85,7 @@ export const createTweetValidator = validate(
         errorMessage: TWEETS_MESSAGE.MENTIONS_MUST_BE_AN_ARRAY
       },
       custom: {
-        options: (value, {req}) => {
+        options: (value) => {
           // Yêu cầu mỗi phần tử trong array là user_id
           if (value.some((item: any) => !ObjectId.isValid(item))) {
             throw new Error(TWEETS_MESSAGE.MENTIONS_MUST_BE_AN_ARRAY_OF_USER_ID)
@@ -99,7 +99,7 @@ export const createTweetValidator = validate(
         errorMessage: TWEETS_MESSAGE.MEDIAS_MUST_BE_AN_ARRAY
       },
       custom: {
-        options: (value, {req}) => {
+        options: (value) => {
           // Yêu cầu mỗi phần tử trong array là Media Object
           if (
             value.some((item: any) => {
