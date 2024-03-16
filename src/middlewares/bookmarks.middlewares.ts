@@ -1,3 +1,4 @@
+import {Request} from 'express'
 import {checkSchema} from 'express-validator'
 import {ObjectId} from 'mongodb'
 import HTTP_STATUS from '~/constants/httpStatus'
@@ -11,7 +12,7 @@ export const tweetIdValidator = validate(
     {
       tweet_id: {
         custom: {
-          options: async (value: string) => {
+          options: async (value: string, {req}) => {
             if (!ObjectId.isValid(value)) {
               throw new ErrorWithStatus({
                 message: TWEETS_MESSAGE.INVALID_TWEET_ID,
@@ -25,6 +26,7 @@ export const tweetIdValidator = validate(
                 status: HTTP_STATUS.UNPROCESSABLE_ENTITY
               })
             }
+            ;(req as Request).tweet = tweet
             return true
           }
         }

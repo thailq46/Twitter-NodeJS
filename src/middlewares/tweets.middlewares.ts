@@ -1,9 +1,16 @@
+import {NextFunction, Request, Response} from 'express'
 import {checkSchema} from 'express-validator'
 import {isEmpty} from 'lodash'
 import {ObjectId} from 'mongodb'
-import {MediaType, TweetAudience, TweetType} from '~/constants/enums'
-import {TWEETS_MESSAGE} from '~/constants/messages'
+import {MediaType, TweetAudience, TweetType, UserVerifyStatus} from '~/constants/enums'
+import HTTP_STATUS from '~/constants/httpStatus'
+import {TWEETS_MESSAGE, USERS_MESSAGE} from '~/constants/messages'
+import {ErrorWithStatus} from '~/models/Errors'
+import {TokenPayload} from '~/models/request/User.requests'
+import Tweet from '~/models/schemas/Tweet.schema'
+import databaseService from '~/services/database.services'
 import {numberEnumToArray} from '~/utils/common'
+import {wrapRequestHandler} from '~/utils/handlers'
 import {validate} from '~/utils/validation'
 
 const tweetTypes = numberEnumToArray(TweetType)
@@ -114,3 +121,37 @@ export const createTweetValidator = validate(
     }
   })
 )
+
+// Muốn sử dụng async await trong handler express thì phải có try catch
+// Nếu không dùng try catch thì phải dùng wrapRequestHandler
+export const audienceValidator = wrapRequestHandler(async (req: Request, res: Response, next: NextFunction) => {
+  const tweet = req.tweet as Tweet
+  if (tweet.audience === TweetAudience.TwitterCircle) {
+    // Kiểm tra người xem tweet này đã đăng nhập hay chưa
+    if (!req.decoded_authorization) {
+      throw new ErrorWithStatus({
+        message: USERS_MESSAGE.ACCESS_TOKEN_IS_REQUIRED,
+        status: HTTP_STATUS.UNAUTHORIZED
+      })
+    }
+    // Kiểm tra tài khoản tác giả có ổn (bị khoá hay bị xoá chưa)
+    const author = await databaseService.users.findOne({_id: tweet.user_id})
+    if (!author || author.verify === UserVerifyStatus.Banned) {
+      throw new ErrorWithStatus({
+        message: USERS_MESSAGE.USER_NOT_FOUND,
+        status: HTTP_STATUS.NOT_FOUND
+      })
+    }
+    // Kiểm tra người xem tweet này có nằm trong TwitterCircle của tác giả tweet này không
+    const {user_id} = req.decoded_authorization as TokenPayload
+    const isInTwitterCircle = author.twitter_circle.some((user_circle_id) => user_circle_id.equals(user_id))
+    // Nếu bạn không phải là tác giả và không nằm trong twitter circle thì throw lỗi
+    if (!isInTwitterCircle && !author._id.equals(user_id)) {
+      throw new ErrorWithStatus({
+        message: TWEETS_MESSAGE.TWEET_IS_NOT_PUBLIC,
+        status: HTTP_STATUS.FORBIDDEN
+      })
+    }
+  }
+  next()
+})
