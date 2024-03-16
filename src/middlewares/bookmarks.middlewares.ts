@@ -20,12 +20,11 @@ export const tweetIdValidator = validate(
                 status: HTTP_STATUS.BAD_REQUEST
               })
             }
-
             const [tweet] = await databaseService.tweets
               .aggregate<Tweet>([
                 {
                   $match: {
-                    _id: new ObjectId('65f5137c4a5dc707131ed294')
+                    _id: new ObjectId(value)
                   }
                 },
                 {
