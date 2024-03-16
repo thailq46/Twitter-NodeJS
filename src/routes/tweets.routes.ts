@@ -2,7 +2,7 @@ import {Router} from 'express'
 import {createTweetController, getTweetChildrenController, getTweetController} from '~/controllers/tweets.controllers'
 import {tweetIdValidator} from '~/middlewares/bookmarks.middlewares'
 import {isUserLoggedInValidator} from '~/middlewares/common.middlewares'
-import {audienceValidator, createTweetValidator} from '~/middlewares/tweets.middlewares'
+import {audienceValidator, createTweetValidator, getTweetChildrenValidator} from '~/middlewares/tweets.middlewares'
 import {accessTokenValidator, verifiedUserValidator} from '~/middlewares/users.middlewares'
 import {wrapRequestHandler} from '~/utils/handlers'
 
@@ -48,6 +48,7 @@ tweetsRouter.get(
 tweetsRouter.get(
   '/:tweet_id/children',
   tweetIdValidator,
+  getTweetChildrenValidator,
   isUserLoggedInValidator(accessTokenValidator),
   isUserLoggedInValidator(verifiedUserValidator),
   audienceValidator,

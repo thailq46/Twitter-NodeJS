@@ -27,3 +27,9 @@ Ngoài việc index thì dưới đây là 1 số tips để có thể tối ưu
 - Phân tích câu truy vấn với `explain`
 - Dùng MongoDB Driver lúc nào cũng nhanh hơn dùng các ODM (ORM) như Mongoose, Prisma vì nó bỏ qua lớp ảo hoá và truy vấn trực tiếp vào database
 - Để server MongoDB gần với server của bạn nhất có thể
+
+### new Date() khác gì $currentDate: {updated_at: true}
+
+- $currentDate tính vào lúc mà MongoDB chạy
+- new Date() tính vào lúc code server của chúng ta chạy
+  => Code server chạy trước rồi MongoDB chạy sau

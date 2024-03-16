@@ -190,18 +190,16 @@ class TweetsService {
     const date = new Date()
     const [, total] = await Promise.all([
       databaseService.tweets.updateMany(
+        // $in: tìm những tweet nào có _id nằm trong ids
         {_id: {$in: ids}},
-        {
-          $inc: inc,
-          $set: {updated_at: date}
-        }
+        {$inc: inc, $set: {updated_at: date}}
       ),
       databaseService.tweets.countDocuments({
         parent_id: new ObjectId(tweet_id),
         type: tweet_type
       })
     ])
-
+    // Do code bên trên không return về dữ liệu nên phải forEach để return lại cho người dùng dữ liệu đã cập nhật rồi
     tweets.forEach((tweet) => {
       tweet.updated_at = date
       if (user_id) {
