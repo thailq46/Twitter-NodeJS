@@ -1,4 +1,4 @@
-import { Router } from 'express'
+import {Router} from 'express'
 import {
   loginController,
   logoutController,
@@ -17,7 +17,7 @@ import {
   oauthController,
   refreshTokenController
 } from '~/controllers/users.controllers'
-import { filterMiddleware } from '~/middlewares/common.middlewares'
+import {filterMiddleware} from '~/middlewares/common.middlewares'
 import {
   accessTokenValidator,
   loginValidator,
@@ -33,8 +33,8 @@ import {
   unfollowValidator,
   changePasswordValidator
 } from '~/middlewares/users.middlewares'
-import { UpdateMeReqBody } from '~/models/request/User.requests'
-import { wrapRequestHandler } from '~/utils/handlers'
+import {UpdateMeReqBody} from '~/models/request/User.requests'
+import {wrapRequestHandler} from '~/utils/handlers'
 const usersRouter = Router()
 
 /**
