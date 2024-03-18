@@ -12,6 +12,8 @@ import bookmarksRouter from './routes/bookmarks.routes'
 import likesRouter from './routes/likes.routes'
 import searchRouter from './routes/search.routes'
 // import '~/utils/fake'
+import {createServer} from 'http'
+import {Server} from 'socket.io'
 
 config()
 databaseService.connect().then(() => {
@@ -23,6 +25,8 @@ databaseService.connect().then(() => {
 })
 
 const app = express()
+const httpServer = createServer(app)
+
 app.use(cors())
 const port = process.env.PORT || 4000
 
@@ -43,6 +47,45 @@ app.use('/search', searchRouter)
 
 app.use(defaultErrorHandler)
 
-app.listen(port, () => {
+const io = new Server(httpServer, {
+  // Cấp phép cho domain có thể kết nối tới server
+  cors: {
+    origin: 'http://localhost:3000'
+  }
+})
+
+const users: {
+  [key: string]: {
+    socket_id: string
+  }
+} = {}
+
+/**
+ * Khi có người dùng kết nối tới server thì sẽ tạo ra một socket_id ngẫu nhiên
+ * VD: Có 2 người dùng kết nối tới server thì io.on('connection') sẽ tạo 2 socket_id ngẫu nhiên (Mỗi khi server running lại thì nó sẽ tạo ra socket_id mới)
+ */
+io.on('connection', (socket) => {
+  console.log(`user ${socket.id} connected`)
+  const user_id = socket.handshake.auth._id
+  users[user_id] = {
+    socket_id: socket.id
+  }
+  socket.on('private message', (data) => {
+    console.log(data)
+    // Lấy ra socket_id của người nhận
+    const receiver_socket_id = users[data.to].socket_id
+    socket.to(receiver_socket_id).emit('receive private message', {
+      content: data.content,
+      from: user_id
+    })
+  })
+
+  socket.on('disconnect', () => {
+    delete users[user_id]
+    console.log(`user ${socket.id} disconnected`)
+  })
+})
+
+httpServer.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`)
 })
