@@ -14,6 +14,7 @@ import searchRouter from './routes/search.routes'
 // import '~/utils/fake'
 import {createServer} from 'http'
 import {Server} from 'socket.io'
+import Conversation from './models/schemas/Conversations.schema'
 
 config()
 databaseService.connect().then(() => {
@@ -70,10 +71,20 @@ io.on('connection', (socket) => {
   users[user_id] = {
     socket_id: socket.id
   }
-  socket.on('private message', (data) => {
+  socket.on('private message', async (data) => {
     console.log(data)
     // Lấy ra socket_id của người nhận
-    const receiver_socket_id = users[data.to].socket_id
+    const receiver_socket_id = users[data.to]?.socket_id
+    if (!receiver_socket_id) {
+      return
+    }
+    await databaseService.conversations.insertOne(
+      new Conversation({
+        sender_id: data.from,
+        receiver_id: data.to,
+        content: data.content
+      })
+    )
     socket.to(receiver_socket_id).emit('receive private message', {
       content: data.content,
       from: user_id
