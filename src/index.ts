@@ -2,21 +2,23 @@ import express from 'express'
 import usersRouter from '~/routes/users.routes'
 import databaseService from '~/services/database.services'
 import {defaultErrorHandler} from '~/middlewares/error.middlewares'
-import mediasRouter from './routes/medias.routes'
-import {initFolder} from './utils/file'
+import mediasRouter from '~/routes/medias.routes'
+import {initFolder} from '~/utils/file'
 import {config} from 'dotenv'
-import staticRouter from './routes/static.routes'
+import staticRouter from '~/routes/static.routes'
 import cors from 'cors'
-import tweetsRouter from './routes/tweets.routes'
-import bookmarksRouter from './routes/bookmarks.routes'
-import likesRouter from './routes/likes.routes'
-import searchRouter from './routes/search.routes'
+import tweetsRouter from '~/routes/tweets.routes'
+import bookmarksRouter from '~/routes/bookmarks.routes'
+import likesRouter from '~/routes/likes.routes'
+import searchRouter from '~/routes/search.routes'
 // import '~/utils/fake'
 import {createServer} from 'http'
 import {Server} from 'socket.io'
-import Conversation from './models/schemas/Conversations.schema'
-
+import Conversation from '~/models/schemas/Conversations.schema'
+import conversationsRouter from '~/routes/conversations.routes'
+import {ObjectId} from 'mongodb'
 config()
+
 databaseService.connect().then(() => {
   databaseService.indexUsers()
   databaseService.indexRefreshToken()
@@ -45,6 +47,7 @@ app.use('/tweets', tweetsRouter)
 app.use('/bookmarks', bookmarksRouter)
 app.use('/likes', likesRouter)
 app.use('/search', searchRouter)
+app.use('/conversations', conversationsRouter)
 
 app.use(defaultErrorHandler)
 
@@ -80,8 +83,8 @@ io.on('connection', (socket) => {
     }
     await databaseService.conversations.insertOne(
       new Conversation({
-        sender_id: data.from,
-        receiver_id: data.to,
+        sender_id: new ObjectId(data.from),
+        receiver_id: new ObjectId(data.to),
         content: data.content
       })
     )
