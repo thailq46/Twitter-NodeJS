@@ -23,6 +23,7 @@ import {
   oldPasswordCheckSchema,
   userIdSchema
 } from '~/constants/checkSchema'
+import {verifyAccessToken} from '~/utils/common'
 
 export const loginValidator = validate(
   checkSchema(
@@ -99,25 +100,7 @@ export const accessTokenValidator = validate(
               })
             }
             const access_token = (value || '').split(' ')[1]
-            if (!access_token) {
-              throw new ErrorWithStatus({
-                message: USERS_MESSAGE.ACCESS_TOKEN_IS_REQUIRED,
-                status: HTTP_STATUS.UNAUTHORIZED
-              })
-            }
-            try {
-              const decoded_authorization = await verifyToken({
-                token: access_token,
-                serectOrPublicKey: process.env.JWT_SECRET_ACCESS_TOKEN as string
-              })
-              ;(req as Request).decoded_authorization = decoded_authorization
-              return true
-            } catch (error) {
-              throw new ErrorWithStatus({
-                message: capitalize((error as JsonWebTokenError).message),
-                status: HTTP_STATUS.UNAUTHORIZED
-              })
-            }
+            return await verifyAccessToken(access_token, req as Request)
           }
         }
       }
