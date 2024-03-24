@@ -1,0 +1,67 @@
+openapi: 3.0.3
+info:
+  title: Swagger Petstore - OpenAPI 3.0
+  description: |-
+    This is a sample Pet Store Server based on the OpenAPI 3.0 specification.  You can find out more about
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: apiteam@swagger.io
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.11
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+  - url: http://localhost:3001
+    description: Local server
+tags:
+  - name: users
+    description: Các API liên quan đến user
+paths:
+  /users/login:
+    post:
+      tags:
+        - users
+      summary: Đăng nhập
+      description: Đăng nhập vào hệ thống
+      operationId: login
+      requestBody:
+        description: Thông tin đăng nhập
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginBody'
+        required: true
+      responses:
+        '200':
+          description: Đăng nhập thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Login successfully
+                  result:
+                    $ref: '#/components/schemas/SuccessAuthentication'
+        '422':
+          description: Invalid input
+  /users/me:
+    get:
+      tags:
+        - users
+      summary: Lấy thông tin user
+      description: Lấy thông tin user hiện tại
+      operationId: getMe
+      security:
+        - BearerAuth: []
+      responses:
+        default:
+          description: Lấy thông tin user thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'

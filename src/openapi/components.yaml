@@ -1,0 +1,82 @@
+components:
+  schemas:
+    LoginBody:
+      type: object
+      properties:
+        email:
+          type: string
+          example: lequangthai2@gmail.com
+        password:
+          type: string
+          example: Thai123!
+    SuccessAuthentication:
+      type: object
+      properties:
+        access_token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjVlNTM2MTFjYThkMzFmNTFjN2ZkY2NjIiwidG9rZW5fdHlwZSI6MCwidmVyaWZ5IjoxLCJpYXQiOjE3MTEyNDgzMTIsImV4cCI6MTcxMTMzNDcxMn0.k8XdgR8mxOXB9hsk_Ln9ZopABWKfk5hFkqpQR0dNIr0
+        refresh_token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjVlNTM2MTFjYThkMzFmNTFjN2ZkY2NjIiwidG9rZW5fdHlwZSI6MSwidmVyaWZ5IjoxLCJpYXQiOjE3MTEyNDgzMTIsImV4cCI6MTcxOTg4ODMxMn0.qG4Rlc5dVYKh5ojiKbeJYHGz8LTgy9y6KDFnmVRqIr4
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: '65e53611ca8d31f51c7fdccc'
+          format: MongoId
+        name:
+          type: string
+          example: 'Le Quang Thai'
+        email:
+          type: string
+          format: email
+          example: 'lequangthai@gmail.com'
+        date_of_birth:
+          type: string
+          format: ISO8601
+          example: 2024-02-23T16:49:22.990Z
+        created_at:
+          type: string
+          format: ISO8601
+          example: 2024-03-04T02:46:41.587Z
+        updated_at:
+          type: string
+          format: ISO8601
+          example: 2024-03-07T03:23:06.639Z
+        verify:
+          type: integer
+          $ref: '#/components/schemas/UserVerifyStatus'
+        bio:
+          type: string
+          example: 'thailq'
+        location:
+          type: string
+          example: ''
+        website:
+          type: string
+          example: ''
+        username:
+          type: string
+          example: 'thailq'
+        avatar:
+          type: string
+          example: 'http://localhost:3001/images/avatars/avatar.jpg'
+        cover_photo:
+          type: string
+          example: 'http://localhost:3001/images/avatars/cover_photo_avatar.jpg'
+        twitter_circle:
+          type: array
+          items:
+            type: string
+            format: MongoId
+          example: ['65d9e44c23eaf4a6e1bad3d4', '65e4484898b316bfb1e9690b']
+    UserVerifyStatus:
+      type: number
+      enum: [Unverified, Verified, Banned]
+      example: 1
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

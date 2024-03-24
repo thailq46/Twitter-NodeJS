@@ -15,8 +15,42 @@ import {initFolder} from '~/utils/file'
 import {defaultErrorHandler} from '~/middlewares/error.middlewares'
 import {createServer} from 'http'
 // import '~/utils/fake'
+import YAML from 'yaml'
+import fs from 'fs'
+import path from 'path'
+import swaggerUI from 'swagger-ui-express'
+// Nếu dùng swagger-jsdoc thì không dùng file yaml nữa
+import swaggerJSDoc from 'swagger-jsdoc'
 
 config()
+
+const options: swaggerJSDoc.Options = {
+  definition: {
+    openapi: '3.0.3',
+    info: {
+      title: 'Twitter API',
+      version: '1.0.0',
+      description: 'Twitter API'
+    }
+    // Sử dụng với cú pháp comment
+    // components: {
+    //   securitySchemes: {
+    //     BearerAuth: {
+    //       type: 'http',
+    //       scheme: 'bearer',
+    //       bearerFormat: 'JWT'
+    //     }
+    //   }
+    // }
+  },
+  // Sử dụng với cú pháp comment
+  // apis: ['./src/routes/*.routes.ts', './src/models/schemas/*.schema.ts']
+  // Sử dụng với file yaml
+  apis: ['./src/openapi/*.yaml']
+}
+// const file = fs.readFileSync(path.resolve('swagger-twitter.yaml'), 'utf8')
+// const swaggerDocument = YAML.parse(file)
+const openapiSpecification = swaggerJSDoc(options)
 
 databaseService.connect().then(() => {
   databaseService.indexUsers()
@@ -51,6 +85,9 @@ app.use('/conversations', conversationsRouter)
 app.use(defaultErrorHandler)
 
 initSocket(httpServer)
+
+// Swagger UI
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(openapiSpecification))
 
 httpServer.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`)
