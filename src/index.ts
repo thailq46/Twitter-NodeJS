@@ -20,7 +20,21 @@ import path from 'path'
 import swaggerUI from 'swagger-ui-express'
 // Nếu dùng swagger-jsdoc thì không dùng file yaml nữa
 import swaggerJSDoc from 'swagger-jsdoc'
-import {envConfig} from './constants/config'
+import {envConfig, isProduction} from './constants/config'
+import helmet from 'helmet'
+
+const app = express()
+const httpServer = createServer(app)
+
+app.use(helmet())
+const corsOptions: cors.CorsOptions = {
+  origin: isProduction ? envConfig.clientUrl : '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}
+app.use(cors(corsOptions))
+
+const port = envConfig.port
 
 const options: swaggerJSDoc.Options = {
   definition: {
@@ -57,12 +71,6 @@ databaseService.connect().then(() => {
   databaseService.indexFollowers()
   databaseService.indexTweets()
 })
-
-const app = express()
-const httpServer = createServer(app)
-
-app.use(cors())
-const port = envConfig.port
 
 // Tạo folder uploads
 initFolder()
