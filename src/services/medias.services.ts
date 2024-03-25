@@ -6,13 +6,12 @@ import path from 'path'
 import fs from 'fs'
 import fsPromise from 'fs/promises'
 import {isProduction} from '~/utils/config'
-import {config} from 'dotenv'
 import {EncodingStatus, MediaType} from '~/constants/enums'
 import {Media} from '~/models/Other'
 import {encodeHLSWithMultipleVideoStreams} from '~/utils/video'
 import databaseService from './database.services'
 import VideoStatus from '~/models/schemas/VideoStatus.schema'
-config()
+import {envConfig} from '~/constants/config'
 
 class Queue {
   items: string[]
@@ -113,8 +112,8 @@ class MediasService {
         fs.unlinkSync(file.filepath)
         return {
           url: isProduction
-            ? `${process.env.HOST}/static/image/${newName}.jpg`
-            : `http://localhost:${process.env.PORT}/static/image/${newName}.jpg`,
+            ? `${envConfig.host}/static/image/${newName}.jpg`
+            : `http://localhost:${envConfig.port}/static/image/${newName}.jpg`,
           type: MediaType.Image
         }
       })
@@ -127,8 +126,8 @@ class MediasService {
     const result: Media[] = files.map((file) => {
       return {
         url: isProduction
-          ? `${process.env.HOST}/static/video-stream/${file.newFilename}`
-          : `http://localhost:${process.env.PORT}/static/video-stream/${file.newFilename}`,
+          ? `${envConfig.host}/static/video-stream/${file.newFilename}`
+          : `http://localhost:${envConfig.port}/static/video-stream/${file.newFilename}`,
         type: MediaType.Video
       }
     })
@@ -143,8 +142,8 @@ class MediasService {
         queue.enqueue(file.filepath)
         return {
           url: isProduction
-            ? `${process.env.HOST}/static/video-hls/${newName}.m3u8`
-            : `http://localhost:${process.env.PORT}/static/video-hls/${newName}.m3u8`,
+            ? `${envConfig.host}/static/video-hls/${newName}.m3u8`
+            : `http://localhost:${envConfig.port}/static/video-hls/${newName}.m3u8`,
           type: MediaType.HLS
         }
       })

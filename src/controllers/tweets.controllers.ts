@@ -1,4 +1,3 @@
-import {config} from 'dotenv'
 import {Request, Response} from 'express'
 import {ParamsDictionary} from 'express-serve-static-core'
 import {TweetType} from '~/constants/enums'
@@ -6,7 +5,6 @@ import {TWEETS_MESSAGE} from '~/constants/messages'
 import {Pagination, TweetParam, TweetQuery, TweetRequestBody} from '~/models/request/Tweet.requests'
 import {TokenPayload} from '~/models/request/User.requests'
 import tweetsService from '~/services/tweets.services'
-config()
 
 export const createTweetController = async (req: Request<ParamsDictionary, any, TweetRequestBody>, res: Response) => {
   const {user_id} = req.decoded_authorization as TokenPayload

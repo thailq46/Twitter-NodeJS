@@ -1,6 +1,5 @@
 import express from 'express'
 import cors from 'cors'
-import {config} from 'dotenv'
 import usersRouter from '~/routes/users.routes'
 import tweetsRouter from '~/routes/tweets.routes'
 import staticRouter from '~/routes/static.routes'
@@ -21,8 +20,7 @@ import path from 'path'
 import swaggerUI from 'swagger-ui-express'
 // Nếu dùng swagger-jsdoc thì không dùng file yaml nữa
 import swaggerJSDoc from 'swagger-jsdoc'
-
-config()
+import {envConfig} from './constants/config'
 
 const options: swaggerJSDoc.Options = {
   definition: {
@@ -64,7 +62,7 @@ const app = express()
 const httpServer = createServer(app)
 
 app.use(cors())
-const port = process.env.PORT || 4000
+const port = envConfig.port
 
 // Tạo folder uploads
 initFolder()

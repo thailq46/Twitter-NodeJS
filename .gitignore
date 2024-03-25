@@ -3,3 +3,5 @@ dist/
 uploads/
 .vscode
 .env
+.env.production
+.env.staging
