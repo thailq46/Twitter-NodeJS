@@ -22,10 +22,19 @@ import swaggerUI from 'swagger-ui-express'
 import swaggerJSDoc from 'swagger-jsdoc'
 import {envConfig, isProduction} from './constants/config'
 import helmet from 'helmet'
+import rateLimit from 'express-rate-limit'
 
 const app = express()
 const httpServer = createServer(app)
 
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  standardHeaders: true,
+  legacyHeaders: false
+})
+
+app.use(limiter)
 app.use(helmet())
 const corsOptions: cors.CorsOptions = {
   origin: isProduction ? envConfig.clientUrl : '*',
